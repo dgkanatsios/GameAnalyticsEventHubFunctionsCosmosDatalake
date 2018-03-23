@@ -1,0 +1,326 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "namespaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of EventHub namespace"
+            }
+        },
+        "eventhubSku": {
+            "type": "string",
+            "allowedValues": [
+                "Basic",
+                "Standard"
+            ],
+            "defaultValue": "Standard",
+            "metadata": {
+                "description": "The messaging tier for service Bus namespace"
+            }
+        },
+        "skuCapacity": {
+            "type": "int",
+            "allowedValues": [
+                1,
+                2,
+                4
+            ],
+            "defaultValue": 1,
+            "metadata": {
+                "description": "MessagingUnits for premium namespace"
+            }
+        },
+        "eventHubName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of Event Hub"
+            }
+        },
+        "consumerGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of Consumer Group"
+            }
+        },
+        "databaseAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The DocumentDB database account name."
+            }
+        },
+        "adlStoreName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Data Lake Store account to be created and connected to the cluster."
+            }
+        },
+        "ClientId": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Service Principal Id which can be used by functions to create Azure Container Groups"
+            }
+        },
+        "ClientSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Service Principal Secret which can be used by functions to create Azure Container Groups"
+            }
+        },
+        "appName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app that you wish to create. Needs to be globally unique, this will determine your Function's DNS."
+            }
+        },
+        "repoURL": {
+            "type": "string",
+            "defaultValue": "https://github.com/dgkanatsios/AzureFunctionsNodeLeaderboards-Cosmos",
+            "metadata": {
+                "description": "The URL for the GitHub repository that contains the project to deploy."
+            }
+        },
+        "branch": {
+            "type": "string",
+            "defaultValue": "master",
+            "metadata": {
+                "description": "The branch of the GitHub repository to use."
+            }
+        },
+        "hostingPlanName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the App Service plan that you wish to create. Pick a distinctive name like 'leaderboardsplan'."
+            }
+        },
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS"
+            ],
+            "metadata": {
+                "description": "Storage Account type for the Function App. If you are not sure which one to pick, just leave the default Standard_LRS."
+            }
+        }
+    },
+    "variables": {
+        "defaultSASKeyName": "RootManageSharedAccessKey",
+        "authRuleResourceId": "[resourceId('Microsoft.EventHub/namespaces/authorizationRules', parameters('namespaceName'), variables('defaultSASKeyName'))]",
+        "functionAppName": "[parameters('appName')]",
+        "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'gameanalytics')]",
+        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "hostingPlanName": "[concat(variables['functionAppName'], serverplan)]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-01",
+            "name": "[parameters('namespaceName')]",
+            "type": "Microsoft.EventHub/Namespaces",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('eventhubSku')]",
+                "tier": "[parameters('eventhubSku')]",
+                "capacity": "[parameters('skuCapacity')]"
+            },
+            "tags": {
+                "tag1": "value1",
+                "tag2": "value2"
+            },
+            "properties": {},
+            "resources": [
+                {
+                    "apiVersion": "2017-04-01",
+                    "name": "[parameters('eventHubName')]",
+                    "type": "EventHubs",
+                    "dependsOn": [
+                        "[concat('Microsoft.EventHub/namespaces/', parameters('namespaceName'))]"
+                    ],
+                    "properties": {},
+                    "resources": [
+                        {
+                            "apiVersion": "2017-04-01",
+                            "name": "[parameters('consumerGroupName')]",
+                            "type": "ConsumerGroups",
+                            "dependsOn": [
+                                "[parameters('eventHubName')]"
+                            ],
+                            "properties": {
+                                "userMetadata": "User Metadata goes here"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "apiVersion": "2015-04-08",
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "name": "[parameters('databaseAccountName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "[parameters('databaseAccountName')]",
+                "databaseAccountOfferType": "[variables('offerType')]",
+                "locations": [
+                    {
+                        "locationName": "[resourceGroup().location]",
+                        "failoverPriority": 0
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('adlStoreName')]",
+            "type": "Microsoft.DataLakeStore/accounts",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-10-01-preview",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "initialUser": "[parameters('ClientId')]"
+            }
+        },
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2015-05-01",
+            "name": "[variables('functionAppName')]",
+            "location": "South Central US",
+            "properties": {
+                "ApplicationId": "[variables('functionAppName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "apiVersion": "2016-12-01",
+            "location": "[resourceGroup().location]",
+            "kind": "Storage",
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2015-04-01",
+            "name": "[variables('hostingPlanName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "[variables('hostingPlanName')]",
+                "computeMode": "Dynamic",
+                "sku": "Dynamic"
+            }
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('functionAppName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "functionapp",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]",
+                "[resourceId('microsoft.insights/components/', variables('functionAppName'))]",
+                "[resourceId('Microsoft.DataLakeStore/accounts', [parameters('adlStoreName')]]",
+                "[parameters('consumerGroupName')]"
+            ],
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "AzureWebJobsDashboard",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTSHARE",
+                            "value": "[toLower(variables('functionAppName'))]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~1"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "6.5.0"
+                        },
+                        {
+                            "name": "NODE_ENV",
+                            "value": "production"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('functionAppName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "Project",
+                            "value": "functions"
+                        },
+                        {
+                            "Name": "COSMOSDB_ENDPOINT",
+                            "Value": "[reference(concat('Microsoft.DocumentDb/databaseAccounts/', parameters('databaseAccountName'))).documentEndpoint]"
+                        },
+                        {
+                            "Name": "COSMOSDB_PRIMARY_KEY",
+                            "Value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', parameters('databaseAccountName')), '2015-04-08').primaryMasterKey]"
+                        },
+                        {
+                            "Name": "ADL_ACCOUNT",
+                            "Value": "[parameters('adlStoreName')]"
+                        },
+                        {
+                            "Name":"SUBSCRIPTIONID",
+                            "Value":"[subscription().subscriptionId]"
+                        },
+                        {
+                            "Name": "TENANT",
+                            "Value":"[subscription().subscriptionId"
+                        },
+                        {
+                            "NAME": "CLIENTID",
+                            "Value":"[parameters('ClientId')]"
+                        },
+                        {
+                            "NAME":"CLIENTSECRET",
+                            "Value":"[parameters('ClientSecret')]"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "web",
+                    "type": "sourcecontrols",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
+                    ],
+                    "properties": {
+                        "RepoUrl": "[parameters('repoURL')]",
+                        "branch": "[parameters('branch')]",
+                        "IsManualIntegration": true
+                    }
+                }
+            ]
+        ],
+        "outputs": {
+            "NamespaceConnectionString": {
+                "type": "string",
+                "value": "[listkeys(variables('authRuleResourceId'), '2017-04-01').primaryConnectionString]"
+            },
+            "SharedAccessPolicyPrimaryKey": {
+                "type": "string",
+                "value": "[listkeys(variables('authRuleResourceId'), '2017-04-01').primaryKey]"
+            }
+        }
+    }
