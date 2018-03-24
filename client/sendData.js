@@ -5,7 +5,7 @@ const request = require('request');
 const client = EventHubClient.fromConnectionString(process.env.EVENT_HUBS_CONNECTION_STRING);
 const clienthelpers = require("../client/clienthelpers");
 
-const totalGames = 1;
+const totalGames = 150;
 
 let games = [];
 
@@ -40,6 +40,7 @@ function registerGame(gameDocument) {
             if (err) {
                 reject(err);
             } else if (response) {
+                console.log(`Registered game ${gameDocument}`);
                 resolve(`${JSON.stringify(gameDocument)}`);
             }
         });
@@ -59,7 +60,7 @@ function sendDataToEventHub() {
                 tx.on('errorReceived', function (err) { console.log(err); reject(err); });
 
                 games.forEach(gameSessionID => {
-                    const winCount = 5;//Math.floor(Math.random() * 50) + 50;     // returns a number between 50 and 100
+                    const winCount = Math.floor(Math.random() * 50) + 50;     // returns a number between 50 and 100
                     for (let j = 0; j < winCount; j++) {
 
                         let winnerID = 'user' + Math.floor(Math.random() * 5) + 1;

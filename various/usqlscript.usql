@@ -2,8 +2,8 @@
     EXTRACT gameSessionID string,
             winnerID string,
             loserID string
-    FROM "/2018/3/23/{gameSessionID}.txt"
-    USING Extractors.Csv(skipFirstNRows : 1);
+    FROM "/2018/3/24/{gameSessionID}.txt"
+    USING Extractors.Csv(skipFirstNRows : 2);
 
 
 @topPlayersRanking =
