@@ -15,21 +15,28 @@ function getGameSessionDocument(gameSessionID, context) {
         ).toArray((err, results) => {
             if (err) reject(err)
             else {
-                if (results.length === 0) resolve(JSON.stringify([]));
+                if (results.length === 0) resolve(JSON.stringify({}));
                 else {
                     let returnObj = results[0];
                     for (let i = 1; i < results.length; i++) {
-                        //get property keys
-                        let keys = Object.keys(results[i]);
-                        for (let userID of keys) {
-                            if (!returnObj[userID]) {
-                                returnObj[userID] = {};
-                                returnObj[userID].wins = 0;
-                                returnObj[userID].losses = 0;
-                            }
+                        if (results[i].documenttype === 'metadata') {
+                            returnObj.type = results[i].type;
+                            returnObj.map = results[i].map;
+                            returnObj.startDate = results[i].startDate;
+                        }
+                        else {
+                            //get property keys
+                            let keys = Object.keys(results[i]);
+                            for (let userID of keys) {
+                                if (!returnObj[userID]) {
+                                    returnObj[userID] = {};
+                                    returnObj[userID].wins = 0;
+                                    returnObj[userID].losses = 0;
+                                }
 
-                            returnObj[userID].wins += results[i][userID].wins;
-                            returnObj[userID].losses += results[i][userID].losses;
+                                returnObj[userID].wins += results[i][userID].wins;
+                                returnObj[userID].losses += results[i][userID].losses;
+                            }
                         }
                     }
                     resolve(returnObj);

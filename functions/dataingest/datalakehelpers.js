@@ -2,6 +2,7 @@ const MsRest = require("../shared/external").MsRest;
 const adlsManagement = require("../shared/external").adlsManagement;
 const config = require("../shared/config");
 const accountName = config.adlAccountName;
+const utilities = require("../shared/utilities");
 
 function sendDataToDataLakeStore(eventHubMessages) {
     return new Promise((resolve, reject) => {
@@ -13,8 +14,6 @@ function sendDataToDataLakeStore(eventHubMessages) {
                 if (err) throw err;
 
                 const filesystemClient = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
-
-                const headers = 'winnerID,loserID';
 
                 let promises = [];
                 let messagesPerGameSession = {};
@@ -30,66 +29,40 @@ function sendDataToDataLakeStore(eventHubMessages) {
                 for (const gameSessionID in messagesPerGameSession) {
 
                     const specificMessagesPerGameSession = messagesPerGameSession[gameSessionID];
-                    
+
                     let data = '';
                     specificMessagesPerGameSession.forEach(message => {
                         data = `${data}\r\n${message.winnerID},${message.loserID}`;
                     });
 
-                   
-                    promises.push(sendSingleFileToDataLakeStore(filesystemClient, headers, data, gameSessionID));
+
+                    promises.push(sendSingleFileToDataLakeStore(filesystemClient, data, gameSessionID));
                 };
 
-        Promise.all(promises).then(() => resolve("OK")).catch(err => reject(err));
+                Promise.all(promises).then(() => resolve("OK")).catch(err => reject(err));
+            });
     });
-});
 }
 
-function sendSingleFileToDataLakeStore(filesystemClient, headers, data, gameSessionID) {
+function sendSingleFileToDataLakeStore(filesystemClient, data, gameSessionID) {
     return new Promise((resolve, reject) => {
-
-        const date = getTodaysDate();
-
+        const datePath = gameSessionID.split('_')[0].split('-').join('/'); //https://stackoverflow.com/questions/1137436/what-are-useful-javascript-methods-that-extends-built-in-objects/1137579#1137579
         const csvdata = new Buffer(data);
 
-        const csvdataWithHeader = {
-            streamContents: new Buffer(`${headers}${data}`)
-        };
-
-
-        filesystemClient.fileSystem.append(accountName, `/${date}/${gameSessionID}.txt`, csvdata, function (err, result, request, response) {
+        filesystemClient.fileSystem.append(accountName, `/${datePath}/${gameSessionID}.csv`, csvdata, function (err, result, request, response) {
             if (err) {
-                if (err.statusCode === 404) {
-                    //file is not created so create it with a header row
-                    filesystemClient.fileSystem.create(accountName, `/${date}/${gameSessionID}.txt`, csvdataWithHeader, function (err, result, request, response) {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(result);
-                        }
-                    });
-                }
-                else {
-                    reject(err);
-                }
+                reject(err);
             }
             else {
                 resolve(result);
             }
+
         });
 
     });
 }
 
-function getTodaysDate() {
-    const dateObj = new Date();
-    const month = dateObj.getUTCMonth() + 1; //months from 1-12
-    const day = dateObj.getUTCDate();
-    const year = dateObj.getUTCFullYear();
 
-    return year + "/" + month + "/" + day;
-}
 
 module.exports = {
     sendDataToDataLakeStore

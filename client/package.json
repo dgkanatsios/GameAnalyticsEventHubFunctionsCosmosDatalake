@@ -13,6 +13,7 @@
     "azure-event-hubs": "0.0.8",
     "documentdb": "^1.14.2",
     "dotenv": "^5.0.1",
+    "request": "^2.85.0",
     "uuid": "^3.2.1"
   }
 }

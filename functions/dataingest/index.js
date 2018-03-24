@@ -12,8 +12,11 @@ const collectionUrl = `${databaseUrl}/colls/${config.collection.id}`;
 
 const helpers = require("./datalakehelpers");
 
-function insertDocument(document) {
+function createDocument(document) {
     return new Promise((resolve, reject) => {
+
+        document.documenttype = 'message';
+
         client.createDocument(collectionUrl, document, (err, created) => {
             if (err) reject(err)
             else resolve(created);
@@ -67,7 +70,7 @@ module.exports = function (context, eventHubMessages) {
     const aggregatedMessages = aggregateMessages(context, eventHubMessages);
 
     for (let i = 0; i < aggregatedMessages.length; i++) {
-        promises.push(insertDocument(aggregatedMessages[i]));
+        promises.push(createDocument(aggregatedMessages[i]));
     }
 
     Promise.all(promises).then(() => {
