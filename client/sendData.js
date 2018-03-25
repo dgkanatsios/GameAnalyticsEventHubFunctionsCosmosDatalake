@@ -5,7 +5,12 @@ const request = require('request');
 const client = EventHubClient.fromConnectionString(process.env.EVENT_HUBS_CONNECTION_STRING);
 const clienthelpers = require("../client/clienthelpers");
 
-const totalGames = 150;
+const totalGames = 50;
+const minMessagesPerGame = 5000;
+const maxMessagesPerGame = 10000;
+
+const minUserID = 1;
+const maxUserID = 100;
 
 let games = [];
 
@@ -40,7 +45,7 @@ function registerGame(gameDocument) {
             if (err) {
                 reject(err);
             } else if (response) {
-                console.log(`Registered game ${gameDocument}`);
+                console.log(`Registered game ${JSON.stringify(gameDocument)}`);
                 resolve(`${JSON.stringify(gameDocument)}`);
             }
         });
@@ -51,6 +56,7 @@ registerGames().then(() => console.log("registration OK")).then(() => sendDataTo
 
 function sendDataToEventHub() {
     return new Promise((resolve, reject) => {
+        let totalEvents = 0;
         client.open()
             .then(function () {
                 return client.createSender();
@@ -60,13 +66,13 @@ function sendDataToEventHub() {
                 tx.on('errorReceived', function (err) { console.log(err); reject(err); });
 
                 games.forEach(gameSessionID => {
-                    const winCount = Math.floor(Math.random() * 50) + 50;     // returns a number between 50 and 100
+                    const winCount = clienthelpers.getRandomInt(minMessagesPerGame, maxMessagesPerGame);
                     for (let j = 0; j < winCount; j++) {
 
-                        let winnerID = 'user' + Math.floor(Math.random() * 5) + 1;
+                        let winnerID = 'user' + clienthelpers.getRandomInt(minUserID, maxUserID);
                         let loserID;
                         do {
-                            loserID = 'user' + Math.floor(Math.random() * 5) + 1;
+                            loserID = 'user' + clienthelpers.getRandomInt(minUserID, maxUserID);
                         } while (winnerID === loserID);
 
                         const event = {
@@ -74,10 +80,11 @@ function sendDataToEventHub() {
                             winnerID: winnerID,
                             loserID: loserID
                         }
-                        console.log(JSON.stringify(event));
+                        //console.log(JSON.stringify(event));
+                        totalEvents++;
                         tx.send(event);
                     }
-                    console.log(`Sent ${winCount} events for gameSessionID:${gameSessionID}`);
+                    console.log(`Sent ${winCount} events for gameSessionID:${gameSessionID}, ${totalEvents} in total so far`);
                 });
                 console.log("Finished");
                 resolve("Finished");

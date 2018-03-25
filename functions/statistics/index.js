@@ -51,7 +51,7 @@ module.exports = function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
     if (req.query.gameSessionID || (req.body && req.body.gameSessionID)) {
-        gameSessionID = (req.query.gameSessionID || req.body.gameSessionID);
+        const gameSessionID = (req.query.gameSessionID || req.body.gameSessionID);
         getGameSessionDocument(gameSessionID, context).then(x => {
             context.log(x);
             context.res = {

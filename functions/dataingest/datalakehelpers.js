@@ -32,7 +32,7 @@ function sendDataToDataLakeStore(eventHubMessages) {
 
                     let data = '';
                     specificMessagesPerGameSession.forEach(message => {
-                        data = `${data}\r\n${message.winnerID},${message.loserID}`;
+                        data += `${message.gameSessionID},${message.winnerID},${message.loserID}\n`;
                     });
 
 
@@ -47,18 +47,16 @@ function sendDataToDataLakeStore(eventHubMessages) {
 function sendSingleFileToDataLakeStore(filesystemClient, data, gameSessionID) {
     return new Promise((resolve, reject) => {
         const datePath = gameSessionID.split('_')[0].split('-').join('/'); //https://stackoverflow.com/questions/1137436/what-are-useful-javascript-methods-that-extends-built-in-objects/1137579#1137579
+
         const csvdata = new Buffer(data);
+        //https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.management.datalake.store.filesystemoperationsextensions.concurrentappendasync?view=azure-dotnet
+        const options = {
+            appendMode: 'autocreate',
+            syncFlag: 'DATA'
+        };
 
-        filesystemClient.fileSystem.append(accountName, `/${datePath}/${gameSessionID}.csv`, csvdata, function (err, result, request, response) {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve(result);
-            }
-
-        });
-
+        filesystemClient.fileSystem.concurrentAppend(accountName, `/${datePath}/gamesessions.csv`, csvdata, options)
+            .then(() => resolve("OK")).catch(err => reject(err));
     });
 }
 

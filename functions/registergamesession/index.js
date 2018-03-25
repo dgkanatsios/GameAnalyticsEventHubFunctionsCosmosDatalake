@@ -28,21 +28,16 @@ function insertFileToADL(gameDocument) {
 
                 const date = utilities.getDate(gameDocument.startDate);
 
-                const headers = `${gameDocument.gameSessionID},${gameDocument.type},${gameDocument.map},${gameDocument.startDate}\nwinnerid,loserid`;
+                //'gameSessionID,gameType,gameMap,startDate'
+                const data = `${gameDocument.gameSessionID},${gameDocument.type},${gameDocument.map},${gameDocument.startDate}\n`;
 
-                const csvdataWithHeader = {
-                    streamContents: new Buffer(headers)
+                const csvData = new Buffer(data);
+                const options = {
+                    appendMode: 'autocreate'
                 };
-
                 const filesystemClient = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
-                filesystemClient.fileSystem.create(accountName, `/${date}/${gameDocument.gameSessionID}.csv`, csvdataWithHeader, function (err, result, request, response) {
-                    if (err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve(result);
-                    }
-                });
+
+                filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/metadata.csv`, csvData, options).then(()=>resolve("OK")).catch(err=>reject(err));
             });
     });
 }

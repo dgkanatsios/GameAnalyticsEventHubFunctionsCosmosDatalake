@@ -2,35 +2,43 @@
     EXTRACT gameSessionID string,
             winnerID string,
             loserID string
-    FROM "/2018/3/24/{gameSessionID}.txt"
-    USING Extractors.Csv(skipFirstNRows : 2);
+    FROM "/2018/3/25/gamesessions.csv"
+    USING Extractors.Csv();
 
 
 @topPlayersRanking =
     SELECT winnerID,
            COUNT( * ) AS wins
     FROM @q
-    GROUP BY winnerID;
+    GROUP BY winnerID
+ORDER BY wins DESC
+FETCH 100 ROWS;
 
 
-OUTPUT @topPlayersRanking TO "/output/topPlayersRanking.csv"
+OUTPUT @topPlayersRanking
+TO "/output/topPlayersRanking.csv"
 USING Outputters.Csv();
 
 @losses =
     SELECT loserID,
-           COUNT (*) AS losses
+           COUNT( * ) AS losses
     FROM @q
     GROUP BY loserID;
 
 
 @winToLossRatio =
-    SELECT a.winnerID AS userID, a.wins, b.losses,
-           (double)a.wins / (double)b.losses AS WinToLossRatio
+    SELECT a.winnerID AS userID,
+           a.wins,
+           b.losses,
+           (double) a.wins / (double) b.losses AS WinToLossRatio
     FROM @topPlayersRanking AS a
          INNER JOIN
              @losses AS b
-         ON a.winnerID == b.loserID;
-                   
+         ON a.winnerID == b.loserID
+        ORDER BY WinToLossRatio
+        FETCH 100 ROWS;
 
-OUTPUT @winToLossRatio TO "/output/topWinToLossRatio.txt"
+
+OUTPUT @winToLossRatio
+TO "/output/topWinToLossRatio.csv"
 USING Outputters.Csv();
