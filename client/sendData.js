@@ -25,8 +25,8 @@ function registerGames() {
         games.forEach(gameSessionID => {
             const gameDocument = {
                 gameSessionID: gameSessionID,
-                type: "type1",
-                map: "map1"
+                type: "type" + clienthelpers.getRandomInt(1,10),
+                map: "map" +  + clienthelpers.getRandomInt(1,10)
             };
             promises.push(registerGame(gameDocument));
         });

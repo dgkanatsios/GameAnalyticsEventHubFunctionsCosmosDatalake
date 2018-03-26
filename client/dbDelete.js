@@ -16,6 +16,7 @@ const collection = {
     partitionKey: { paths: ["/gameSessionID"], kind: "Hash" }
 };
 
+
 const requestOptions = { offerThroughput: 2500 };
 
 const client = new documentClient(endpoint, { "masterKey": primaryKey });
@@ -23,27 +24,24 @@ const client = new documentClient(endpoint, { "masterKey": primaryKey });
 const databaseUrl = `dbs/${database.id}`;
 const collectionUrl = `${databaseUrl}/colls/${collection.id}`;
 
-function createCollection() {
-    console.log(`Creating collection:\n${collection.id}\n`);
-    return new Promise((resolve, reject) => {
-        client.createCollection(databaseUrl, collection, requestOptions, (err, created) => {
-            if (err) reject(err)
-            else resolve("Create collection OK");
-        });
 
-    });
-}
-
-function createDatabase() {
-    console.log(`Creating database:\n${database.id}\n`);
+function deleteCollection() {
     return new Promise((resolve, reject) => {
-        client.createDatabase(database, (err, created) => {
-            if (err) reject(err)
-            else resolve("Create DB OK");
+        client.deleteCollection(collectionUrl, function (err, result, response) {
+            if (err) reject(err);
+            else resolve("OK");
         });
     });
 }
 
-createDatabase().then((res) => { console.log(res); return createCollection(); }).then((res) => console.log(res)).catch(err => console.log(err));
+function deleteDatabase() {
+    return new Promise((resolve, reject) => {
+        client.deleteDatabase(databaseUrl, function (err, result, response) {
+            if (err) reject(err);
+            else resolve("Delete DB OK");
+        });
+    });
+}
 
-//createCollection().then(res=>console.log(res)).catch(err => console.log(err));
+deleteDatabase().then(res => console.log(res)).catch((err) => console.log(err));
+

@@ -113,34 +113,35 @@
         {
             "apiVersion": "2017-04-01",
             "name": "[parameters('namespaceName')]",
-            "type": "Microsoft.EventHub/Namespaces",
+            "type": "Microsoft.EventHub/namespaces",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "[parameters('eventhubSku')]",
                 "tier": "[parameters('eventhubSku')]",
                 "capacity": "[parameters('skuCapacity')]"
             },
-            "properties": {}
-        },
-        {
-            "apiVersion": "2017-04-01",
-            "name": "[parameters('eventHubName')]",
-            "type": "Microsoft.EventHub/EventHubs",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaceName'))]"
-            ],
-            "properties": {}
-        },
-        {
-            "apiVersion": "2017-04-01",
-            "name": "[variables('consumerGroupName')]",
-            "type": "Microsoft.EventHub/ConsumerGroups",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('namespaceName'), parameters('eventHubName'))]"
-            ],
-            "properties": {}
+            "properties": {},
+            "resources": [
+                {
+                    "apiVersion": "2017-04-01",
+                    "name": "[parameters('eventHubName')]",
+                    "type": "eventhubs",
+                    "dependsOn": [
+                        "[concat('Microsoft.EventHub/namespaces/', parameters('namespaceName'))]"
+                    ],
+                    "properties": {},
+                    "resources": [
+                        {
+                            "apiVersion": "2017-04-01",
+                            "name": "[variables('consumerGroupName')]",
+                            "type": "consumergroups",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('namespaceName'), parameters('eventHubName'))]"
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
         {
             "apiVersion": "2015-04-08",
