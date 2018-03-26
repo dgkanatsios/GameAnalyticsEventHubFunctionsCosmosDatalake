@@ -1,18 +1,23 @@
-var documentClient = require("../shared/external").documentdb.DocumentClient;
-var config = require("../shared/config");
+const documentClient = require("../shared/external").documentdb.DocumentClient;
+const config = require("../shared/config");
 
-var client = new documentClient(config.endpoint, { "masterKey": config.primaryKey });
+const client = new documentClient(config.endpoint, { "masterKey": config.primaryKey });
 
-var databaseUrl = `dbs/${config.database.id}`;
-var collectionUrl = `${databaseUrl}/colls/${config.collection.id}`;
+const databaseUrl = `dbs/${config.database.id}`;
+const collectionUrl = `${databaseUrl}/colls/${config.collection.id}`;
 
 
 function getGameSessionDocument(gameSessionID, context) {
     return new Promise((resolve, reject) => {
-        client.queryDocuments(
-            collectionUrl,
-            `SELECT * FROM events WHERE events.gameSessionID = '${gameSessionID}'`
-        ).toArray((err, results) => {
+
+        const querySpec = {
+            'query': 'SELECT * FROM events WHERE (events.gameSessionID = @gameSessionID)',
+            "parameters": [
+                { "name": "@gameSessionID", "value": gameSessionID }
+            ]
+        };
+
+        client.queryDocuments(collectionUrl, querySpec).toArray((err, results) => {
             if (err) reject(err)
             else {
                 if (results.length === 0) resolve(JSON.stringify({}));

@@ -79,25 +79,6 @@
             "metadata": {
                 "description": "The URL for the GitHub repository that contains the project to deploy."
             }
-        },
-        "branch": {
-            "type": "string",
-            "defaultValue": "master",
-            "metadata": {
-                "description": "The branch of the GitHub repository to use."
-            }
-        },
-        "storageAccountType": {
-            "type": "string",
-            "defaultValue": "Standard_LRS",
-            "allowedValues": [
-                "Standard_LRS",
-                "Standard_GRS",
-                "Standard_RAGRS"
-            ],
-            "metadata": {
-                "description": "Storage Account type for the Function App. If you are not sure which one to pick, just leave the default Standard_LRS."
-            }
         }
     },
     "variables": {
@@ -107,7 +88,10 @@
         "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'analytics')]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "hostingPlanName": "[concat(uniquestring(resourceGroup().id), 'analyticsplan')]",
-        "consumerGroupName": "$Default"
+        "consumerGroupName": "$Default",
+        "storageAccountType": "Standard_LRS",
+        "branch": "master",
+        "partitionCount": 1
     },
     "resources": [
         {
@@ -120,7 +104,10 @@
                 "tier": "[parameters('eventhubSku')]",
                 "capacity": "[parameters('skuCapacity')]"
             },
-            "properties": {},
+            "properties": {
+                "isAutoInflateEnabled": true,
+                "maximumThroughputUnits": 20
+            },
             "resources": [
                 {
                     "apiVersion": "2017-04-01",
@@ -129,7 +116,11 @@
                     "dependsOn": [
                         "[concat('Microsoft.EventHub/namespaces/', parameters('namespaceName'))]"
                     ],
-                    "properties": {},
+                    "properties": {
+                        "messageRetentionInDays": 1,
+                        "partitionCount": "[variables('partitionCount')]",
+                        "status": "Active"
+                    },
                     "resources": [
                         {
                             "apiVersion": "2017-04-01",
@@ -179,7 +170,7 @@
             "location": "[resourceGroup().location]",
             "kind": "Storage",
             "sku": {
-                "name": "[parameters('storageAccountType')]"
+                "name": "[variables('storageAccountType')]"
             }
         },
         {
@@ -306,7 +297,7 @@
                     ],
                     "properties": {
                         "RepoUrl": "[parameters('repoURL')]",
-                        "branch": "[parameters('branch')]",
+                        "branch": "[variables('branch')]",
                         "IsManualIntegration": true
                     }
                 }

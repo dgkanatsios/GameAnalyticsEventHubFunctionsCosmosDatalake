@@ -73,4 +73,7 @@ It depends. Clients can hack (especially on PC) the messages and send malicious 
 You should check the parameters listed [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json#eventhub). Moreover, you are encouraged to read [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-hubs#trigger---scaling) regading Functions' scaling when using the Event Hubs trigger. Finally, check [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-best-practices) for performance best practices for Azure Functions.
 
 ### Are you doing anything specific to optimize parallel data ingestion into Data Lake Store?
-Yes, we are using the ConcurrentAppend method of the Data Lake Store API, check [here](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.management.datalake.store.filesystemoperationsextensions.concurrentappendasync?view=azure-dotnet) for details.
+Yes, we are using the ConcurrentAppend method of the Data Lake Store API, check [here](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.management.datalake.store.filesystemoperationsextensions.concurrentappendasync?view=azure-dotnet) for details. For more information on how to fine-tune Azure Data Lake for performance, check [here](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-performance-tuning-guidance).
+
+### I want to read more information regarding Event Hubs.
+Check out the excellent documentation [here](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-features).
