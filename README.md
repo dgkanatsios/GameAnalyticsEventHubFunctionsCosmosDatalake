@@ -47,6 +47,20 @@ const event = {
 - Game server or client can call *statistics* Function passing the gameSessionID as argument and get game session related data
 - External service can use Data Lake Analytics jobs to query data in Data Lake Store (there is a relevant .usql script on the *various* folder). The output of these jobs can be ingested into other services (via Data Factory) or be used directly from a visualization platform such as PowerBI.
 
+### Functions' details
+
+#### registergamesession
+
+This Function is used to register a game session and store relevant metadata. Data is stored into Cosmos DB as well as a file in Data Lake Store. Filename is *metadata.csv* whereas data is appended in the format *gameSessionID*,*gameType*,*gameMap*,*gameStartDateTime*.
+
+#### dataingest
+
+This Function is triggered by Event Hub. It fetches messages in batch, stores an aggregation on Cosmos DB as well as appends message data to Data Lake Store. Filename is *gamesessions.csv* and data is appended in the format *gameSessionID*,*winnerID*,*loserID*.
+
+#### statistics
+
+This Function is an HTTP triggered one. It accepts the gameSessionID as an argument and returns details (wins, losses, etc.) about the specific gameSession.
+
 ## FAQ
 
 #### Is this the best architecture / solution?
@@ -57,3 +71,6 @@ It depends. Clients can hack (especially on PC) the messages and send malicious 
 
 #### How can I modify the communication between Event Hubs and Azure Functions?
 You should check the parameters listed [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json#eventhub). Moreover, you are encouraged to read [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-hubs#trigger---scaling) regading Functions' scaling when using the Event Hubs trigger. Finally, check [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-best-practices) for performance best practices for Azure Functions.
+
+### Are you doing anything specific to optimize parallel data ingestion into Data Lake Store?
+Yes, we are using the ConcurrentAppend method of the Data Lake Store API, check [here](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.management.datalake.store.filesystemoperationsextensions.concurrentappendasync?view=azure-dotnet) for details.
