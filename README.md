@@ -16,13 +16,40 @@ A simple architecture to consume and process messages coming from video game cli
 Click here to deploy to Azure
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdgkanatsios%2FGameAnalyticsEventHubFunctionsCosmosDatalake%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
 
+## Scenario
+
+The scenario is based on a hypothetical multiplayer online game. Gamers connect to multiple game servers and compete among themselves. Gamers can have a 'win' or a 'loss'. You can think of wins/losses
+
 ## Architecture
 
 ![Architecture](media/architecture.png)
 
+## Terminology
+
+- *Game session*: a single round of a multiplayer game
+- *Wins*: a 'win' of a user versus another one. This could be a 'kill' in a First Person Shooter, a bypassing in a racing game, a goal in a soccer match
+- *Losses*: the exact opposite of the win, depending on the game scenario
+- *winnerID*: the user that accomplished the win
+- *loserID*: the user that suffered the loss from *winnerID*
+
+## Data flow
+
+- Game server registers the game by calling the *registergamesession* Function. Each game has a sessionID which is formattted like *year-month-day_GUID*
+- Game server sends messages to Event Hub using the format:
+```javascript
+const event = {
+                    gameSessionID: string,
+                    winnerID: string,    
+                    loserID: string
+                }
+```
+- Event Hub triggers the dataingest Function which receives the messages in batch. Messages are sent to Azure Data Lake Store without any processing (cold path) whereas they are aggregated and sent to Cosmos DB (hot path)
+- Game server or client can call *statistics* Function passing the gameSessionID as argument and get game session related data
+- External service can use Data Lake Analytics jobs to query data in Data Lake Store (there is a relevant .usql script on the *various* folder)
+
 ## FAQ
 
-#### Is this the best architecture?
+#### Is this the best architecture / solution?
 Of course not. It always depends on your requirements. For example, you could swap Event Hubs with Kafka, Functions with Stream Analytics, Data Lake Analytics with Databricks or HDInsight. This is *one* implementation of a data streaming and processing pipeline, it can certainly work well and scale, however you are encouraged to modify parts of this solution towards your objectives.
 
 #### Are messages meant to be sent from the game client or server?

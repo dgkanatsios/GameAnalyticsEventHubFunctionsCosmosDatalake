@@ -47,7 +47,6 @@ function aggregateMessages(context, eventHubMessages) {
             aggregatedMessages.push(foundGameSession);
         }
 
-
         //if the winner is not contained in the gameSessionID
         if (!foundGameSession[message.winnerID]) {
             foundGameSession[message.winnerID] = { wins: 0, losses: 0 };

@@ -12,7 +12,7 @@ const database = {
 
 const collection = {
     "id": "events",
-    "defaultTtl": 60 * 10, //seconds
+    "defaultTtl": 60 * 10, //total TTL seconds
     partitionKey: { paths: ["/gameSessionID"], kind: "Hash" } 
 };
 
@@ -37,9 +37,9 @@ function createCollection() {
 }
 
 function createDatabase() {
-    console.log(`Creating database:\n${config.database.id}\n`);
+    console.log(`Creating database:\n${database.id}\n`);
     return new Promise((resolve, reject) => {
-                    client.createDatabase(config.database, (err, created) => {
+                    client.createDatabase(database, (err, created) => {
                         if (err) reject(err)
                         else resolve(created);
                     });
