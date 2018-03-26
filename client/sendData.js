@@ -82,6 +82,8 @@ function sendDataToEventHub() {
                         }
                         //console.log(JSON.stringify(event));
                         totalEvents++;
+                        //we should *NOT* define a partition key
+                        //https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-programming-guide#partition-key
                         tx.send(event);
                     }
                     console.log(`Sent ${winCount} events for gameSessionID:${gameSessionID}, ${totalEvents} in total so far`);
