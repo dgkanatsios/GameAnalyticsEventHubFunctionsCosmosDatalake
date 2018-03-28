@@ -72,8 +72,8 @@ It depends. Clients can hack (especially on PC) the messages and send malicious 
 #### How can I modify the communication between Event Hubs and Azure Functions?
 You should check the parameters listed [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-host-json#eventhub). Moreover, you are encouraged to read [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-hubs#trigger---scaling) regading Functions' scaling when using the Event Hubs trigger. Finally, check [here](https://docs.microsoft.com/en-us/azure/azure-functions/functions-best-practices) for performance best practices for Azure Functions.
 
-### Are you doing anything specific to optimize parallel data ingestion into Data Lake Store?
+#### Are you doing anything specific to optimize parallel data ingestion into Data Lake Store?
 Yes, we are using the ConcurrentAppend method of the Data Lake Store API, check [here](https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.management.datalake.store.filesystemoperationsextensions.concurrentappendasync?view=azure-dotnet) for details. For more information on how to fine-tune Azure Data Lake for performance, check [here](https://docs.microsoft.com/en-us/azure/data-lake-store/data-lake-store-performance-tuning-guidance).
 
-### I want to read more information regarding Event Hubs.
+#### I want to read more information regarding Event Hubs.
 Check out the excellent documentation [here](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-features). For techniques on how to optimize event ingestion and consumption, check [here](https://blogs.msdn.microsoft.com/appserviceteam/2017/09/19/processing-100000-events-per-second-on-azure-functions/). For in order event processing with Event Hubs and Azure Functions check [here](https://medium.com/@jeffhollan/in-order-event-processing-with-azure-functions-bb661eb55428) whereas you can check [here](https://hackernoon.com/reliable-event-processing-in-azure-functions-37054dc2d0fc) for reliable event processing.
