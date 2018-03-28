@@ -1,8 +1,10 @@
+DECLARE @date string = "/2018/3/27";
+
 @q =
     EXTRACT gameSessionID string,
             winnerID string,
             loserID string
-    FROM "/2018/3/25/gamesessions.csv"
+    FROM @date + "/gamesessions.csv"
     USING Extractors.Csv();
 
 
@@ -16,7 +18,7 @@ FETCH 100 ROWS;
 
 
 OUTPUT @topPlayersRanking
-TO "/output/topPlayersRanking.csv"
+TO @date + "/output/topPlayersRanking.csv"
 USING Outputters.Csv();
 
 @losses =
@@ -35,10 +37,10 @@ USING Outputters.Csv();
          INNER JOIN
              @losses AS b
          ON a.winnerID == b.loserID
-        ORDER BY WinToLossRatio
+        ORDER BY WinToLossRatio DESC
         FETCH 100 ROWS;
 
 
 OUTPUT @winToLossRatio
-TO "/output/topWinToLossRatio.csv"
+TO @date + "/output/topWinToLossRatio.csv"
 USING Outputters.Csv();
