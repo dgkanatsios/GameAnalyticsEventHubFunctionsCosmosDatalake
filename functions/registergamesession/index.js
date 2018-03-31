@@ -38,7 +38,17 @@ function insertFileToADL(gameDocument) {
                 };
                 const filesystemClient = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
 
-                filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/metadata.csv`, csvData, options).then(()=>resolve("OK")).catch(err=>reject(err));
+                filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/metadata.csv`, csvData, options).then(() => {
+                    //game session inserted, now we have to insert the players
+                    let playerData = '';
+                    gameDocument.players.forEach(player => {
+                        //'gameSessionID,playerID,playerCountry'
+                        playerData += `${gameDocument.gameSessionID},${player.playerID},${player.playerCountry}\n`;
+                    });
+                    const csvPlayerData = new Buffer(playerData);
+                    filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/playerRegistrations.csv`, csvPlayerData, options).then(() => resolve("OK")).catch(err => reject(err));
+
+                }).catch(err => reject(err));
             });
     });
 }
@@ -51,8 +61,9 @@ module.exports = function (context, req) {
         gameSessionID: req.body.gameSessionID,
         type: req.body.type,
         map: req.body.map,
-        startDate: new Date(),
-        documenttype: constants.metadata
+        startDate: new Date(req.body.startDate),
+        documenttype: constants.metadata,
+        players: req.body.players
     };
 
     insertDocumentToCosmos(gameDocument)

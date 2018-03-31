@@ -29,7 +29,8 @@ function createDocument(document) {
 const event = {
                     gameSessionID: string,
                     winnerID: string,    
-                    loserID: string
+                    loserID: string,
+                    eventDate: new Date()
                 }
 */
 

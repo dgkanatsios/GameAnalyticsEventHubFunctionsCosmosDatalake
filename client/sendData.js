@@ -12,21 +12,50 @@ const maxMessagesPerGame = 100;
 const minUserID = 1;
 const maxUserID = 100;
 
+const minPlayersPerGame = 8;
+const maxPlayersPerGame = 16;
+
+const totalPlayersPerDay = 1000;
+
 let games = [];
+let players = [];
+
+//create random players
+for (let j = 0; j < totalPlayersPerDay; j++) {
+    players.push({
+        playerID: 'player' + clienthelpers.getRandomInt(minUserID, maxUserID),
+        playerCountry: clienthelpers.getRandomCountry()
+    });
+}
 
 for (let i = 0; i < totalGames; i++) {
-    games.push(clienthelpers.getDate() + "_" + uuidv4());
+    let gameSession = {
+        gameSessionID: clienthelpers.getDate() + "_" + uuidv4(),
+        players: []
+    }
+
+    const playersCount = clienthelpers.getRandomInt(minPlayersPerGame, maxPlayersPerGame);
+    for (let j = 0; j < playersCount; j++) {
+        let randomPlayer;
+        do {
+            randomPlayer = clienthelpers.getRandomElement(players);
+        }
+        while (gameSession.players.find(x => x.playerID === randomPlayer.playerID) !== 'undefined');
+        gameSession.players.push(randomPlayer);
+    }
+    games.push(gameSession);
 }
 
 
 function registerGames() {
     return new Promise((resolve, reject) => {
         let promises = [];
-        games.forEach(gameSessionID => {
+        games.forEach(gameSession => {
             const gameDocument = {
-                gameSessionID: gameSessionID,
-                type: "type" + clienthelpers.getRandomInt(1,10),
-                map: "map" +  + clienthelpers.getRandomInt(1,10)
+                gameSessionID: gameSession.gameSessionID,
+                type: "type" + clienthelpers.getRandomInt(1, 10),
+                map: "map" + + clienthelpers.getRandomInt(1, 10),
+                players: gameSession.players
             };
             promises.push(registerGame(gameDocument));
         });
@@ -52,7 +81,7 @@ function registerGame(gameDocument) {
     });
 }
 
-registerGames().then(() => console.log("registration OK")).then(() => sendDataToEventHub()).catch(err => console.log(err));
+registerGames().then(() => console.log("game registration OK")).then(() => sendDataToEventHub()).catch(err => console.log(err));
 
 function sendDataToEventHub() {
     return new Promise((resolve, reject) => {
@@ -65,20 +94,21 @@ function sendDataToEventHub() {
 
                 tx.on('errorReceived', function (err) { console.log(err); reject(err); });
 
-                games.forEach(gameSessionID => {
+                games.forEach(gameSession => {
                     const winCount = clienthelpers.getRandomInt(minMessagesPerGame, maxMessagesPerGame);
                     for (let j = 0; j < winCount; j++) {
 
-                        let winnerID = 'user' + clienthelpers.getRandomInt(minUserID, maxUserID);
+                        let winnerID = clienthelpers.getRandomElement(gameSession.players).playerID;
                         let loserID;
                         do {
-                            loserID = 'user' + clienthelpers.getRandomInt(minUserID, maxUserID);
+                            loserID = clienthelpers.getRandomElement(gameSession.players).playerID;
                         } while (winnerID === loserID);
 
                         const event = {
-                            gameSessionID: gameSessionID,
+                            gameSessionID: gameSession.gameSessionID,
                             winnerID: winnerID,
-                            loserID: loserID
+                            loserID: loserID,
+                            eventDate: new Date()
                         }
                         //console.log(JSON.stringify(event));
                         totalEvents++;
