@@ -34,14 +34,16 @@ The scenario is based on a hypothetical multiplayer online game. Gamers connect 
 
 ## Data flow
 
-- Game server registers the game by calling the *registergamesession* Function. Each game has a sessionID which is formattted like *year-month-day_GUID*
+- Game server registers the game by calling the *registergamesession* Function. Each game has a sessionID which is formattted like *year-month-day_GUID*. Game server also submits the list of players that will participate in this game session. For this demo, we suppose that users cannot enter the game after it has began.
 - Game server sends messages to Event Hub using the format:
 ```javascript
 const event = {
                     gameSessionID: string,
                     winnerID: string,    
-                    loserID: string
-                }
+                    loserID: string,
+                    eventDate: string
+                };
+ /* eventDate is JS Date object*/                
 ```
 - Event Hub triggers the dataingest Function which receives the messages in batch. Messages are sent to Azure Data Lake Store without any processing (cold path) whereas they are aggregated and sent to Cosmos DB (hot path)
 - Game server or client can call *statistics* Function passing the gameSessionID as argument and get game session related data
