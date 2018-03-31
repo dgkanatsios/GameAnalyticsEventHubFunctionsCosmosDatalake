@@ -20,6 +20,9 @@ function sendDataToDataLakeStore(eventHubMessages) {
 
                 //'split' messages per game session
                 eventHubMessages.forEach(message => {
+
+                    if (!message.special) message.special = '';
+
                     if (!messagesPerGameSession[message.gameSessionID]) {
                         messagesPerGameSession[message.gameSessionID] = [];
                     }
@@ -32,7 +35,7 @@ function sendDataToDataLakeStore(eventHubMessages) {
 
                     let data = '';
                     specificMessagesPerGameSession.forEach(message => {
-                        data += `${message.gameSessionID},${message.winnerID},${message.loserID},${message.eventDate}\n`;
+                        data += `${message.gameSessionID},${message.winnerID},${message.loserID},${message.special},${message.eventDate}\n`;
                     });
 
 

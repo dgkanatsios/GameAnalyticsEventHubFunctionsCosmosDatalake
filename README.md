@@ -41,9 +41,9 @@ const event = {
                     gameSessionID: string,
                     winnerID: string,    
                     loserID: string,
-                    eventDate: string
-                };
- /* eventDate is JS Date object*/                
+                    special: string, //special attributes for this win, like 'Low health'
+                    eventDate: string //JS Date Object
+                };          
 ```
 - Event Hub triggers the dataingest Function which receives the messages in batch. Messages are sent to Azure Data Lake Store without any processing (cold path) whereas they are aggregated and sent to Cosmos DB (hot path)
 - Game server or client can call *statistics* Function passing the gameSessionID as argument and get game session related data

@@ -22,8 +22,14 @@ let players = [];
 
 //create random players
 for (let j = 0; j < totalPlayersPerDay; j++) {
+
+    let playerID;
+    do {
+        playerID = 'player' + clienthelpers.getRandomInt(minUserID, maxUserID);
+    } while (players.find(x => x.playerID === playerID));
+
     players.push({
-        playerID: 'player' + clienthelpers.getRandomInt(minUserID, maxUserID),
+        playerID: playerID,
         playerCountry: clienthelpers.getRandomCountry()
     });
 }
@@ -34,13 +40,14 @@ for (let i = 0; i < totalGames; i++) {
         players: []
     }
 
+    //number of players for this game
     const playersCount = clienthelpers.getRandomInt(minPlayersPerGame, maxPlayersPerGame);
     for (let j = 0; j < playersCount; j++) {
         let randomPlayer;
         do {
             randomPlayer = clienthelpers.getRandomElement(players);
         }
-        while (gameSession.players.find(x => x.playerID === randomPlayer.playerID) !== 'undefined');
+        while (gameSession.players.find(x => x.playerID === randomPlayer.playerID));
         gameSession.players.push(randomPlayer);
     }
     games.push(gameSession);
@@ -55,7 +62,8 @@ function registerGames() {
                 gameSessionID: gameSession.gameSessionID,
                 type: "type" + clienthelpers.getRandomInt(1, 10),
                 map: "map" + + clienthelpers.getRandomInt(1, 10),
-                players: gameSession.players
+                players: gameSession.players,
+                startDate: new Date()
             };
             promises.push(registerGame(gameDocument));
         });
@@ -110,13 +118,19 @@ function sendDataToEventHub() {
                             loserID: loserID,
                             eventDate: new Date()
                         }
+
+                        //send a 'Low health' special property
+                        if(clienthelpers.getRandomInt(1,10) === 5){
+                            event.special = 'Low Health'
+                        };
+
                         //console.log(JSON.stringify(event));
                         totalEvents++;
                         //we should *NOT* define a partition key
                         //https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-programming-guide#partition-key
                         tx.send(event);
                     }
-                    console.log(`Sent ${winCount} events for gameSessionID:${gameSessionID}, ${totalEvents} in total so far`);
+                    console.log(`Sent ${winCount} events for gameSessionID:${gameSession.gameSessionID}, ${totalEvents} in total so far`);
                 });
                 console.log("Finished");
                 resolve("Finished");
