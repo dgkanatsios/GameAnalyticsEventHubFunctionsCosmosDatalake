@@ -1,10 +1,12 @@
-DECLARE @date string = "/2018/3/27";
+DECLARE @date string = "/2018/3/31";
 
 @q =
     EXTRACT gameSessionID string,
             winnerID string,
-            loserID string
-    FROM @date + "/gamesessions.csv"
+            loserID string,
+            special string,
+            startDate DateTime
+    FROM @date + "/gameevents.csv"
     USING Extractors.Csv();
 
 
