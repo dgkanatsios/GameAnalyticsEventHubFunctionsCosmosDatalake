@@ -38,7 +38,7 @@ function insertFileToADL(gameDocument) {
                 };
                 const filesystemClient = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
 
-                filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/metadata.csv`, csvData, options).then(() => {
+                filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/gamesessions.csv`, csvData, options).then(() => {
                     //game session inserted, now we have to insert the players
                     let playerData = '';
                     gameDocument.players.forEach(player => {
@@ -46,7 +46,7 @@ function insertFileToADL(gameDocument) {
                         playerData += `${gameDocument.gameSessionID},${player.playerID},${player.playerCountry}\n`;
                     });
                     const csvPlayerData = new Buffer(playerData);
-                    filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/playerRegistrations.csv`, csvPlayerData, options).then(() => resolve("OK")).catch(err => reject(err));
+                    filesystemClient.fileSystem.concurrentAppend(accountName, `/${date}/playerspergamesession.csv`, csvPlayerData, options).then(() => resolve("OK")).catch(err => reject(err));
 
                 }).catch(err => reject(err));
             });

@@ -58,7 +58,7 @@ function sendSingleFileToDataLakeStore(filesystemClient, data, gameSessionID) {
             syncFlag: 'DATA'
         };
 
-        filesystemClient.fileSystem.concurrentAppend(accountName, `/${datePath}/gamesessions.csv`, csvdata, options)
+        filesystemClient.fileSystem.concurrentAppend(accountName, `/${datePath}/gameevents.csv`, csvdata, options)
             .then(() => resolve("OK")).catch(err => reject(err));
     });
 }
