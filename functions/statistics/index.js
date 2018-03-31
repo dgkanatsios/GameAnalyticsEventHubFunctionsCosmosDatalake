@@ -1,6 +1,6 @@
 const documentClient = require("../shared/external").documentdb.DocumentClient;
 const config = require("../shared/config");
-
+const constants  =require("../shared/constants");
 const client = new documentClient(config.endpoint, { "masterKey": config.primaryKey });
 
 const databaseUrl = `dbs/${config.database.id}`;
@@ -24,12 +24,12 @@ function getGameSessionDocument(gameSessionID, context) {
                 else {
                     let returnObj = results[0];
                     for (let i = 1; i < results.length; i++) {
-                        if (results[i].documenttype === 'metadata') {
+                        if (results[i].documenttype === constants.metadata) {
                             returnObj.type = results[i].type;
                             returnObj.map = results[i].map;
                             returnObj.startDate = results[i].startDate;
                         }
-                        else {
+                        else if (results[i].documenttype === constants.message) {
                             //get property keys
                             let keys = Object.keys(results[i]);
                             for (let userID of keys) {

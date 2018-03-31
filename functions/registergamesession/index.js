@@ -7,6 +7,7 @@ const MsRest = require("../shared/external").MsRest;
 const adlsManagement = require("../shared/external").adlsManagement;
 const utilities = require("../shared/utilities");
 const accountName = config.adlAccountName;
+const constants = require('../shared/constants');
 
 function insertDocumentToCosmos(document) {
     return new Promise((resolve, reject) => {
@@ -51,7 +52,7 @@ module.exports = function (context, req) {
         type: req.body.type,
         map: req.body.map,
         startDate: new Date(),
-        documenttype: 'metadata'
+        documenttype: constants.metadata
     };
 
     insertDocumentToCosmos(gameDocument)

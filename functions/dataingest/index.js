@@ -2,7 +2,7 @@
 
 const MsRest = require("../shared/external").MsRest;
 const adlsManagement = require("../shared/external").adlsManagement;
-
+const constants = require('../shared/constants');
 const documentClient = require("../shared/external").documentdb.DocumentClient;
 const config = require("../shared/config");
 
@@ -15,7 +15,7 @@ const helpers = require("./datalakehelpers");
 function createDocument(document) {
     return new Promise((resolve, reject) => {
 
-        document.documenttype = 'message';
+        document.documenttype = constants.message;
 
         client.createDocument(collectionUrl, document, (err, created) => {
             if (err) reject(err)
