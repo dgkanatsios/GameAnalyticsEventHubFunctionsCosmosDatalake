@@ -15,17 +15,16 @@ const maxUserID = 100;
 const minPlayersPerGame = 8;
 const maxPlayersPerGame = 16;
 
-const totalPlayersPerDay = 1000;
+const totalPlayersPerDay = 100;
 
 let games = [];
 let players = [];
 
 //create random players
 for (let j = 0; j < totalPlayersPerDay; j++) {
-
     let playerID;
     do {
-        playerID = 'player' + clienthelpers.getRandomInt(minUserID, maxUserID);
+        playerID = 'player_' + clienthelpers.randomstring(5);
     } while (players.find(x => x.playerID === playerID));
 
     players.push({
@@ -120,7 +119,7 @@ function sendDataToEventHub() {
                         }
 
                         //send a 'Low health' special property
-                        if(clienthelpers.getRandomInt(1,10) === 5){
+                        if (clienthelpers.getRandomInt(1, 10) === 5) {
                             event.special = 'Low Health'
                         };
 
