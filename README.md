@@ -16,6 +16,8 @@ A simple architecture to consume and process messages coming from video game cli
 Click here to deploy to Azure
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdgkanatsios%2FGameAnalyticsEventHubFunctionsCosmosDatalake%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
 
+Once the deployment finishes, you need to connect the independent resources (TO BE DOCUMENTED).
+
 ## Scenario
 
 The scenario is based on a hypothetical multiplayer online game. Gamers connect to multiple game servers and compete among themselves. Gamers can have a 'win' or a 'loss'. You can think of wins/losses
@@ -35,13 +37,27 @@ The scenario is based on a hypothetical multiplayer online game. Gamers connect 
 ## Data flow
 
 - Game server registers the game by calling the *registergamesession* Function. Each game has a sessionID which is formattted like *year-month-day_GUID*. Game server also submits the list of players that will participate in this game session. For this demo, we suppose that users cannot enter the game after it has began.
+```javascript
+const gameDocument = {
+                gameSessionID: string, //the game SessionID, its format is "DATE_GUID"
+                type: string, //random game type, for the demo its format is "type" + random integer
+                map: string, //random map, for the demo its format is "map" + random integer
+                players: array, //array of player objects
+                startDate: string //JS Date object
+            };    
+const player = {
+        playerID: string, //playerID
+        playerCountry: string //country the player connects from
+    };     
+```
 - Game server sends messages to Event Hub using the format:
 ```javascript
 const event = {
-                    gameSessionID: string,
-                    winnerID: string,    
-                    loserID: string,
-                    special: string, //special attributes for this win, like 'Low health'
+                    eventID: string, //a unique event ID, its format is "GUID_gameSessionID"
+                    gameSessionID: string, 
+                    winnerID: string, //playerID of the winner
+                    loserID: string, //player ID of the loses
+                    special: string, //special attribute(s) for this win, like 'Low health'
                     eventDate: string //JS Date Object
                 };          
 ```
@@ -53,15 +69,29 @@ const event = {
 
 #### registergamesession
 
-This Function is used to register a game session and store relevant metadata. Data is stored into Cosmos DB as well as a file in Data Lake Store. Filename is *metadata.csv* whereas data is appended in the format *gameSessionID*,*gameType*,*gameMap*,*gameStartDateTime*.
+This Function is used to register a game session and store relevant metadata. Data is stored into Cosmos DB as well as two CSV files in Data Lake Store. On the first file, we store details about each unique game session. The filename is '/YEAR/MONTH/DAY/gamesessions.csv' whereas the data that's being appended to it has the format:
+
+```javascript
+const line = `${gameDocument.gameSessionID},${gameDocument.type},${gameDocument.map},${gameDocument.startDate}\n`;
+```
+
+The second file is '/YEAR/MONTH/DAY/playerspergamesession.csv'. On this file, we store data about each player that will participate in the current game session. Data has the format:
+
+```javascript
+const line = `${gameDocument.gameSessionID},${player.playerID},${player.playerCountry}\n`;
+```
 
 #### dataingest
 
-This Function is triggered by Event Hub. It fetches messages in batch, stores an aggregation on Cosmos DB as well as appends message data to Data Lake Store. Filename is *gamesessions.csv* and data is appended in the format *gameSessionID*,*winnerID*,*loserID*.
+This Function is triggered by Event Hub. It fetches messages in batch, stores an aggregation on Cosmos DB as well as appends message data to Data Lake Store. Filename is '/YEAR/MONTH/DAY/gameevents.csv' and data is appended in CSV format, with each line containing having the following format:
+
+```javascript
+const line = `${message.eventID},${message.gameSessionID},${message.winnerID},${message.loserID},${message.special},${message.eventDate}\n`;
+```
 
 #### statistics
 
-This Function is an HTTP triggered one. It accepts the gameSessionID as an argument and returns details (wins, losses, etc.) about the specific gameSession.
+This Function is an HTTP triggered one. It accepts the gameSessionID as an argument and returns details (players, wins, losses, etc.) about the specific gameSession by connecting to Cosmos DB and fetching/aggregating the relevant documents.
 
 ## FAQ
 

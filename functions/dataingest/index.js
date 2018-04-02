@@ -27,9 +27,11 @@ function createDocument(document) {
 //event has the format
 /*
 const event = {
+                    eventID: string
                     gameSessionID: string,
                     winnerID: string,    
                     loserID: string,
+                    special: string, //optional
                     eventDate: new Date()
                 }
 */

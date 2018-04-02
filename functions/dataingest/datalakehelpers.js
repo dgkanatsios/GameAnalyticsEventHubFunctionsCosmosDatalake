@@ -35,7 +35,7 @@ function sendDataToDataLakeStore(eventHubMessages) {
 
                     let data = '';
                     specificMessagesPerGameSession.forEach(message => {
-                        data += `${message.gameSessionID},${message.winnerID},${message.loserID},${message.special},${message.eventDate}\n`;
+                        data += `${message.eventID},${message.gameSessionID},${message.winnerID},${message.loserID},${message.special},${message.eventDate}\n`;
                     });
 
 

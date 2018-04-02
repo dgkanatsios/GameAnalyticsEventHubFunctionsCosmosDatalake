@@ -1,7 +1,8 @@
 DECLARE @date string = "/2018/3/31";
 
 @q =
-    EXTRACT gameSessionID string,
+    EXTRACT eventID string,
+            gameSessionID string,
             winnerID string,
             loserID string,
             special string,

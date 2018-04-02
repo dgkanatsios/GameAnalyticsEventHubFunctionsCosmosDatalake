@@ -24,7 +24,7 @@ let players = [];
 for (let j = 0; j < totalPlayersPerDay; j++) {
     let playerID;
     do {
-        playerID = 'player_' + clienthelpers.randomstring(5);
+        playerID = 'player_' + clienthelpers.randomstring(5); //playerID is "player_RANDOM_STRING"
     } while (players.find(x => x.playerID === playerID));
 
     players.push({
@@ -35,7 +35,7 @@ for (let j = 0; j < totalPlayersPerDay; j++) {
 
 for (let i = 0; i < totalGames; i++) {
     let gameSession = {
-        gameSessionID: clienthelpers.getDate() + "_" + uuidv4(),
+        gameSessionID: clienthelpers.getDate() + "_" + uuidv4(), //gameSessionID is "date_GUID"
         players: []
     }
 
@@ -45,7 +45,7 @@ for (let i = 0; i < totalGames; i++) {
         let randomPlayer;
         do {
             randomPlayer = clienthelpers.getRandomElement(players);
-        }
+        } //don't have the same player join the game twice
         while (gameSession.players.find(x => x.playerID === randomPlayer.playerID));
         gameSession.players.push(randomPlayer);
     }
@@ -59,8 +59,8 @@ function registerGames() {
         games.forEach(gameSession => {
             const gameDocument = {
                 gameSessionID: gameSession.gameSessionID,
-                type: "type" + clienthelpers.getRandomInt(1, 10),
-                map: "map" + + clienthelpers.getRandomInt(1, 10),
+                type: "type" + clienthelpers.getRandomInt(1, 10), //random game type
+                map: "map" + + clienthelpers.getRandomInt(1, 10), //random map
                 players: gameSession.players,
                 startDate: new Date()
             };
@@ -112,20 +112,18 @@ function sendDataToEventHub() {
                         } while (winnerID === loserID);
 
                         const event = {
+                            eventID: uuidv4() + "_" + gameSession.gameSessionID, //unique event ID is  //gameSessionID is "GUID_gameSessionID"
                             gameSessionID: gameSession.gameSessionID,
                             winnerID: winnerID,
                             loserID: loserID,
                             eventDate: new Date()
                         }
 
-                        //send a 'Low health' special property
-                        if (clienthelpers.getRandomInt(1, 10) === 5) {
-                            event.special = 'Low Health'
-                        };
+                        addSpecial(event); //adds a 'special' property that contains special value(s) for this win
 
                         //console.log(JSON.stringify(event));
                         totalEvents++;
-                        //we should *NOT* define a partition key
+                        //we should *NOT* define a partition key when we send an event to Event Hubs
                         //https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-programming-guide#partition-key
                         tx.send(event);
                     }
@@ -135,4 +133,18 @@ function sendDataToEventHub() {
                 resolve("Finished");
             });
     });
+}
+
+function addSpecial(event) {
+    //add a couple of special properties
+    if (clienthelpers.getRandomInt(1, 10) === 5) {
+        event.special = 'Low Health';
+    };
+
+    if (clienthelpers.getRandomInt(1, 10) === 7) {
+        if (!event.special || event.special === '')
+            event.special = 'Defender win';
+        else
+            event.special += '_Defender win';
+    };
 }
