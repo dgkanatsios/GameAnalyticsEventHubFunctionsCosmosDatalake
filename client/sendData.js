@@ -5,17 +5,18 @@ const request = require('request');
 const client = EventHubClient.fromConnectionString(process.env.EVENT_HUBS_CONNECTION_STRING);
 const clienthelpers = require("../client/clienthelpers");
 
+//MODIFY THE BELOW VALUES TO YOUR LIKING
+/////////////////////////////////////////////
 const totalGames = 25;
 const minMessagesPerGame = 50;
 const maxMessagesPerGame = 100;
-
 const minUserID = 1;
 const maxUserID = 100;
-
 const minPlayersPerGame = 8;
 const maxPlayersPerGame = 16;
-
 const totalPlayersPerDay = 100;
+/////////////////////////////////////////////
+
 
 let games = [];
 let players = [];

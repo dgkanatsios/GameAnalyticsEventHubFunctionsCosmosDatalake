@@ -20,7 +20,20 @@ Once the deployment finishes, you need to connect the independent resources (TO 
 
 ## Scenario
 
-The scenario is based on a hypothetical multiplayer online game. Gamers connect to multiple game servers and compete among themselves. Gamers can have a 'win' or a 'loss'. You can think of wins/losses
+The scenario is based on a hypothetical multiplayer online game. Gamers connect to multiple game servers and compete among themselves. Gamers can have a 'win' or a 'loss'. You can think of wins/losses as actions/achievements one player might have over another. E.g. in a first-person shooter, win could be a 'kill' and loss could be a 'death'.
+
+## Execution
+
+After you deploy the resources on Azure and finalize the connections among them, you can use the sample Node.js app we have on the 'client folder'. First, you need to configure a '.env' file on the client folder that contains the following necessary environment variables
+
+```
+COSMOSDB_ENDPOINT='https://COSMOSDBENDPOINT.documents.azure.com:443/'
+COSMOSDB_KEY='YOUR_KEY'
+EVENT_HUBS_CONNECTION_STRING='Endpoint=sb://EVENTHUBSNAMESPACE.servicebus.windows.net/;SharedAccessKeyName=sendPolicy;SharedAccessKey=SHAREDACCESSKEY;EntityPath=EVENTHUBSINSTANCE'
+REGISTERGAME_FUNCTION_URL=url for your deployed 'register game' Azure Function
+```
+
+Then, you can run 'dbCreate.js' to create the database in your Cosmos DB account and then run 'sendData.js' to send some data. Feel free to modify the related variables in the 'sendData.js' to your liking.
 
 ## Architecture
 
