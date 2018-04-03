@@ -17,26 +17,35 @@ function getRandomCountry() {
     return countries[Math.floor(Math.random() * countries.length)];
 }
 
-function getRandomElement(array){
+function getRandomElement(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
 function randomstring(L) {
     let s = '';
-    let randomchar = function() {
-      var n = Math.floor(Math.random() * 62);
-      if (n < 10) return n; //1-10
-      if (n < 36) return String.fromCharCode(n + 55); //A-Z
-      return String.fromCharCode(n + 61); //a-z
+    let randomchar = function () {
+        var n = Math.floor(Math.random() * 62);
+        if (n < 10) return n; //1-10
+        if (n < 36) return String.fromCharCode(n + 55); //A-Z
+        return String.fromCharCode(n + 61); //a-z
     }
     while (s.length < L) s += randomchar();
     return s;
-  }
+}
+
+
+function getNow() {
+    //https://stackoverflow.com/questions/221294/how-do-you-get-a-timestamp-in-javascript
+    //return Math.round(new Date().getTime() / 1000);
+    //https://stackoverflow.com/questions/10286204/the-right-json-date-format
+    return new Date().toJSON();
+}
 
 module.exports = {
     getDate,
     getRandomInt,
     getRandomCountry,
     getRandomElement,
-    randomstring
+    randomstring,
+    getNow
 };

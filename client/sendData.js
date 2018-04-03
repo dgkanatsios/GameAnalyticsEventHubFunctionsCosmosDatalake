@@ -63,7 +63,7 @@ function registerGames() {
                 type: "type" + clienthelpers.getRandomInt(1, 10), //random game type
                 map: "map" + + clienthelpers.getRandomInt(1, 10), //random map
                 players: gameSession.players,
-                startDate: new Date()
+                startDate: clienthelpers.getNow()
             };
             promises.push(registerGame(gameDocument));
         });
@@ -117,7 +117,7 @@ function sendDataToEventHub() {
                             gameSessionID: gameSession.gameSessionID,
                             winnerID: winnerID,
                             loserID: loserID,
-                            eventDate: new Date()
+                            eventDate: clienthelpers.getNow()
                         }
 
                         addSpecial(event); //adds a 'special' property that contains special value(s) for this win

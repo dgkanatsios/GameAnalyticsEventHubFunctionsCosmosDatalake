@@ -39,7 +39,7 @@ function sendDataToDataLakeStore(eventHubMessages) {
                     });
 
 
-                    promises.push(sendSingleFileToDataLakeStore(filesystemClient, data, gameSessionID));
+                    promises.push(sendGameSessionEventsToDataLakeStore(filesystemClient, data, gameSessionID));
                 };
 
                 Promise.all(promises).then(() => resolve("OK")).catch(err => reject(err));
@@ -47,7 +47,7 @@ function sendDataToDataLakeStore(eventHubMessages) {
     });
 }
 
-function sendSingleFileToDataLakeStore(filesystemClient, data, gameSessionID) {
+function sendGameSessionEventsToDataLakeStore(filesystemClient, data, gameSessionID) {
     return new Promise((resolve, reject) => {
         const datePath = gameSessionID.split('_')[0].split('-').join('/'); //https://stackoverflow.com/questions/1137436/what-are-useful-javascript-methods-that-extends-built-in-objects/1137579#1137579
 

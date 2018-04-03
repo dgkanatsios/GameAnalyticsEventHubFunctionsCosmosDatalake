@@ -9,14 +9,14 @@ const config = require("../shared/config");
 const client = new documentClient(config.endpoint, { "masterKey": config.primaryKey });
 const databaseUrl = `dbs/${config.database.id}`;
 const collectionUrl = `${databaseUrl}/colls/${config.collection.id}`;
-
+const utilities = require("../shared/utilities");
 const helpers = require("./datalakehelpers");
 
 function createDocument(document) {
     return new Promise((resolve, reject) => {
 
         document.documenttype = constants.message;
-
+        //we should do a proper validation before saving
         client.createDocument(collectionUrl, document, (err, created) => {
             if (err) reject(err)
             else resolve(created);
@@ -32,11 +32,11 @@ const event = {
                     winnerID: string,    
                     loserID: string,
                     special: string, //optional
-                    eventDate: new Date()
+                    eventDate: new Date().toJSON()
                 }
 */
 
-
+//aggregate game events to store data to Cosmos DB
 function aggregateMessages(context, eventHubMessages) {
     let aggregatedMessages = [];
     eventHubMessages.forEach(message => {
@@ -78,5 +78,5 @@ module.exports = function (context, eventHubMessages) {
     Promise.all(promises).then(() => {
         helpers.sendDataToDataLakeStore(eventHubMessages)
     }).then(() => context.done())
-        .catch((err) => { context.log(err); context.done() });
+        .catch((err) => { utilities.setErrorAndCloseContext(context, err, 500) });
 };

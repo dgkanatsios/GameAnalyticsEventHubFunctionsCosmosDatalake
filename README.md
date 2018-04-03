@@ -52,11 +52,11 @@ Then, you can run 'dbCreate.js' to create the database in your Cosmos DB account
 - Game server registers the game by calling the *registergamesession* Function. Each game has a sessionID which is formattted like *year-month-day_GUID*. Game server also submits the list of players that will participate in this game session. For this demo, we suppose that users cannot enter the game after it has began.
 ```javascript
 const gameDocument = {
-                gameSessionID: string, //the game SessionID, its format is "DATE_GUID"
+                gameSessionID: string, //the game SessionID, its format is "DATE_GUID" where date is YEAR-MONTH-DAY
                 type: string, //random game type, for the demo its format is "type" + random integer
                 map: string, //random map, for the demo its format is "map" + random integer
                 players: array, //array of player objects
-                startDate: string //JS Date object
+                startDate: number //time string in UTC format (e.g. 2018-04-03T06:19:25.151Z), denotes time the game session started
             };    
 const player = {
         playerID: string, //playerID
@@ -67,11 +67,11 @@ const player = {
 ```javascript
 const event = {
                     eventID: string, //a unique event ID, its format is "GUID_gameSessionID"
-                    gameSessionID: string, 
+                    gameSessionID: string, //the game session in which this event took place
                     winnerID: string, //playerID of the winner
                     loserID: string, //player ID of the loses
                     special: string, //special attribute(s) for this win, like 'Low health'
-                    eventDate: string //JS Date Object
+                    eventDate: number //time string in UTC format (e.g. 2018-04-03T06:19:25.151Z), denotes time the event took place
                 };          
 ```
 - Event Hub triggers the dataingest Function which receives the messages in batch. Messages are sent to Azure Data Lake Store without any processing (cold path) whereas they are aggregated and sent to Cosmos DB (hot path)

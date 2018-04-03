@@ -61,7 +61,7 @@ module.exports = function (context, req) {
         gameSessionID: req.body.gameSessionID,
         type: req.body.type,
         map: req.body.map,
-        startDate: new Date(req.body.startDate),
+        startDate: req.body.startDate,
         documenttype: constants.metadata,
         players: req.body.players
     };
@@ -69,6 +69,6 @@ module.exports = function (context, req) {
     insertDocumentToCosmos(gameDocument)
         .then(() => insertFileToADL(gameDocument))
         .then(() => context.done())
-        .catch((err) => { context.log(err); context.done(); });
+        .catch((err) => utilities.setErrorAndCloseContext(context, err, 500));
 
 };
