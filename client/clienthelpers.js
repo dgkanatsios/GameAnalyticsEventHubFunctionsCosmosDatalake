@@ -36,10 +36,10 @@ function randomstring(L) {
 
 function getNow() {
     //https://stackoverflow.com/questions/221294/how-do-you-get-a-timestamp-in-javascript
-    //return Math.round(new Date().getTime() / 1000); //seconds -> you need to change 
-    return Math.round(new Date().getTime()); //miliseconds
+    //return Math.round(new Date().getTime() / 1000); //seconds -> you need to change parseDate method on shared/utilities.js for this to work!!
+    //return Math.round(new Date().getTime()); //miliseconds
     //https://stackoverflow.com/questions/10286204/the-right-json-date-format
-    //return new Date().toJSON();
+    return new Date().toJSON();
 }
 
 module.exports = {
