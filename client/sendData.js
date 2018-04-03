@@ -118,7 +118,7 @@ function sendDataToEventHub() {
                             winnerID: winnerID,
                             loserID: loserID,
                             eventDate: clienthelpers.getNow()
-                        }
+                        };
 
                         addSpecial(event); //adds a 'special' property that contains special value(s) for this win
 

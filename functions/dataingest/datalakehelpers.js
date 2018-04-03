@@ -20,8 +20,7 @@ function sendDataToDataLakeStore(eventHubMessages) {
 
                 //'split' messages per game session
                 eventHubMessages.forEach(message => {
-
-                    if (!message.special) message.special = '';
+                    if (!message.special) message.special = ''; //add an empty special to avoid saving 'undefined'
 
                     if (!messagesPerGameSession[message.gameSessionID]) {
                         messagesPerGameSession[message.gameSessionID] = [];
@@ -32,13 +31,10 @@ function sendDataToDataLakeStore(eventHubMessages) {
                 for (const gameSessionID in messagesPerGameSession) {
 
                     const specificMessagesPerGameSession = messagesPerGameSession[gameSessionID];
-
                     let data = '';
                     specificMessagesPerGameSession.forEach(message => {
                         data += `${message.eventID},${message.gameSessionID},${message.winnerID},${message.loserID},${message.special},${message.eventDate}\n`;
                     });
-
-
                     promises.push(sendGameSessionEventsToDataLakeStore(filesystemClient, data, gameSessionID));
                 };
 
@@ -62,8 +58,6 @@ function sendGameSessionEventsToDataLakeStore(filesystemClient, data, gameSessio
             .then(() => resolve("OK")).catch(err => reject(err));
     });
 }
-
-
 
 module.exports = {
     sendDataToDataLakeStore

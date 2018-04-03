@@ -27,7 +27,7 @@ function insertFileToADL(gameDocument) {
             (err, credentials) => {
                 if (err) throw err;
 
-                const date = utilities.getDate(gameDocument.startDate);
+                const date = utilities.parseDate(gameDocument.startDate);
 
                 //'gameSessionID,gameType,gameMap,startDate'
                 const data = `${gameDocument.gameSessionID},${gameDocument.type},${gameDocument.map},${gameDocument.startDate}\n`;
