@@ -1,6 +1,7 @@
-DECLARE @date string = "/2018/3/31";
+DECLARE @date string = "/2018/4/6";
 
-@q =
+//get all game events
+@gameevents =
     EXTRACT eventID string,
             gameSessionID string,
             winnerID string,
@@ -10,14 +11,31 @@ DECLARE @date string = "/2018/3/31";
     FROM @date + "/gameevents.csv"
     USING Extractors.Csv();
 
+//get players per game session details
+@playerspergamession =
+    EXTRACT gameSessionID string,
+            playerID string,
+            country string
+    FROM @date + "/playerspergamesession.csv"
+    USING Extractors.Csv();
 
+//get player details
+@players =
+    SELECT DISTINCT
+        playerID,
+        country
+    FROM @playerspergamession;
+
+//get first 1000 top ranked players
 @topPlayersRanking =
     SELECT winnerID,
+           country,
            COUNT( * ) AS wins
-    FROM @q
-    GROUP BY winnerID
+    FROM @gameevents INNER JOIN @players
+                     ON @gameevents.winnerID == @players.playerID
+    GROUP BY winnerID, country
 ORDER BY wins DESC
-FETCH 100 ROWS;
+FETCH 1000 ROWS;
 
 
 OUTPUT @topPlayersRanking
@@ -27,21 +45,24 @@ USING Outputters.Csv();
 @losses =
     SELECT loserID,
            COUNT( * ) AS losses
-    FROM @q
+    FROM @gameevents
     GROUP BY loserID;
 
-
+//get top 1000 with win/loss ratio
 @winToLossRatio =
-    SELECT a.winnerID AS userID,
-           a.wins,
-           b.losses,
-           (double) a.wins / (double) b.losses AS WinToLossRatio
-    FROM @topPlayersRanking AS a
+    SELECT @topPlayersRanking.winnerID AS userID,
+           @topPlayersRanking.wins,
+           @losses.losses,
+           (double) @topPlayersRanking.wins / (double) @losses.losses AS WinToLossRatio,
+           @players.country
+    FROM @topPlayersRanking 
          INNER JOIN
-             @losses AS b
-         ON a.winnerID == b.loserID
+             @losses 
+         ON @topPlayersRanking.winnerID == @losses.loserID
+         INNER JOIN @players 
+         ON @topPlayersRanking.winnerID == @players.playerID
         ORDER BY WinToLossRatio DESC
-        FETCH 100 ROWS;
+        FETCH 1000 ROWS;
 
 
 OUTPUT @winToLossRatio

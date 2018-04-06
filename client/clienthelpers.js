@@ -33,13 +33,20 @@ function randomstring(L) {
     return s;
 }
 
+function randomDate(start, end) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+}
 
-function getNow() {
+function getRandomGameStartTime() {
+    const now = new Date();
+    const randomDateStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const randomDateEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0);
+    const randomDateTime = randomDate(randomDateStart, randomDateEnd);
     //https://stackoverflow.com/questions/221294/how-do-you-get-a-timestamp-in-javascript
-    //return Math.round(new Date().getTime() / 1000); //seconds -> you need to change parseDate method on shared/utilities.js for this to work!!
-    //return Math.round(new Date().getTime()); //miliseconds
+    //return Math.round(randomDateTime.getTime() / 1000); //seconds -> you need to change parseDate method on shared/utilities.js for this to work!!
+    //return Math.round(randomDateTime.getTime()); //miliseconds
     //https://stackoverflow.com/questions/10286204/the-right-json-date-format
-    return new Date().toJSON();
+    return randomDateTime.toJSON();
 }
 
 module.exports = {
@@ -48,5 +55,5 @@ module.exports = {
     getRandomCountry,
     getRandomElement,
     randomstring,
-    getNow
+    getRandomGameStartTime
 };

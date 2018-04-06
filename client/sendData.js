@@ -36,7 +36,7 @@ for (let j = 0; j < totalPlayersPerDay; j++) {
 
 for (let i = 0; i < totalGames; i++) {
     let gameSession = {
-        gameSessionID: clienthelpers.getDate() + "_" + uuidv4(), //gameSessionID is "date_GUID"
+        gameSessionID: clienthelpers.getDate() + "_" + uuidv4(), //gameSessionID is "year-month-day_GUID"
         players: []
     }
 
@@ -63,7 +63,7 @@ function registerGames() {
                 type: "type" + clienthelpers.getRandomInt(1, 10), //random game type
                 map: "map" + + clienthelpers.getRandomInt(1, 10), //random map
                 players: gameSession.players,
-                startDate: clienthelpers.getNow()
+                startDate: clienthelpers.getRandomGameStartTime()
             };
             promises.push(registerGame(gameDocument));
         });
@@ -104,6 +104,7 @@ function sendDataToEventHub() {
 
                 games.forEach(gameSession => {
                     const winCount = clienthelpers.getRandomInt(minMessagesPerGame, maxMessagesPerGame);
+
                     for (let j = 0; j < winCount; j++) {
 
                         let winnerID = clienthelpers.getRandomElement(gameSession.players).playerID;
@@ -112,12 +113,17 @@ function sendDataToEventHub() {
                             loserID = clienthelpers.getRandomElement(gameSession.players).playerID;
                         } while (winnerID === loserID);
 
+                        //let's suppose that each game has a duration of 15'
+                        const eventDateTime = new Date(gameSession.startDate);
+                        eventDateTime.setMinutes(eventDateTime.getMinutes() + clienthelpers.getRandomInt(0, 14));
+                        eventDateTime.setSeconds(eventDateTime.getSeconds() + clienthelpers.getRandomInt(0, 59));
+
                         const event = {
                             eventID: uuidv4() + "_" + gameSession.gameSessionID, //unique event ID is  //gameSessionID is "GUID_gameSessionID"
                             gameSessionID: gameSession.gameSessionID,
                             winnerID: winnerID,
                             loserID: loserID,
-                            eventDate: clienthelpers.getNow()
+                            eventDate: 
                         };
 
                         addSpecial(event); //adds a 'special' property that contains special value(s) for this win
