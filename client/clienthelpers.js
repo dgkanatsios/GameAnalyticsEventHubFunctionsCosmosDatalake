@@ -39,8 +39,9 @@ function randomDate(start, end) {
 
 function getRandomGameStartTime() {
     const now = new Date();
-    const randomDateStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const randomDateEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0);
+    //all times in UTC
+    const randomDateStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+    const randomDateEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 0));
     const randomDateTime = randomDate(randomDateStart, randomDateEnd);
     //https://stackoverflow.com/questions/221294/how-do-you-get-a-timestamp-in-javascript
     //return Math.round(randomDateTime.getTime() / 1000); //seconds -> you need to change parseDate method on shared/utilities.js for this to work!!

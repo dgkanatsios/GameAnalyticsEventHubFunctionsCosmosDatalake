@@ -7,9 +7,9 @@ const clienthelpers = require("../client/clienthelpers");
 
 //MODIFY THE BELOW VALUES TO YOUR LIKING
 /////////////////////////////////////////////
-const totalGames = 25;
-const minMessagesPerGame = 50;
-const maxMessagesPerGame = 100;
+const totalGames = 50;
+const minMessagesPerGame = 100;
+const maxMessagesPerGame = 150;
 const minUserID = 1;
 const maxUserID = 100;
 const minPlayersPerGame = 8;
@@ -58,12 +58,16 @@ function registerGames() {
     return new Promise((resolve, reject) => {
         let promises = [];
         games.forEach(gameSession => {
+
+            //set the date to the session so we can re-use it when we send events later
+            gameSession.startDate = clienthelpers.getRandomGameStartTime()
+
             const gameDocument = {
                 gameSessionID: gameSession.gameSessionID,
                 type: "type" + clienthelpers.getRandomInt(1, 10), //random game type
                 map: "map" + + clienthelpers.getRandomInt(1, 10), //random map
                 players: gameSession.players,
-                startDate: clienthelpers.getRandomGameStartTime()
+                startDate: gameSession.startDate
             };
             promises.push(registerGame(gameDocument));
         });
@@ -115,17 +119,17 @@ function sendDataToEventHub() {
 
                         //let's suppose that each game has a duration of 15'
                         const eventDateTime = new Date(gameSession.startDate);
+
                         eventDateTime.setMinutes(eventDateTime.getMinutes() + clienthelpers.getRandomInt(0, 14));
                         eventDateTime.setSeconds(eventDateTime.getSeconds() + clienthelpers.getRandomInt(0, 59));
-
+                        
                         const event = {
                             eventID: uuidv4() + "_" + gameSession.gameSessionID, //unique event ID is  //gameSessionID is "GUID_gameSessionID"
                             gameSessionID: gameSession.gameSessionID,
                             winnerID: winnerID,
                             loserID: loserID,
-                            eventDate: 
+                            eventDate: eventDateTime
                         };
-
                         addSpecial(event); //adds a 'special' property that contains special value(s) for this win
 
                         //console.log(JSON.stringify(event));
