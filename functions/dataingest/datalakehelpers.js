@@ -47,7 +47,7 @@ function sendGameSessionEventsToDataLakeStore(filesystemClient, data, gameSessio
     return new Promise((resolve, reject) => {
         const datePath = gameSessionID.split('_')[0].split('-').join('/'); //https://stackoverflow.com/questions/1137436/what-are-useful-javascript-methods-that-extends-built-in-objects/1137579#1137579
 
-        const csvdata = new Buffer(data);
+        const csvdata = Buffer.from(data);
         //https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.management.datalake.store.filesystemoperationsextensions.concurrentappendasync?view=azure-dotnet
         const options = {
             appendMode: 'autocreate',

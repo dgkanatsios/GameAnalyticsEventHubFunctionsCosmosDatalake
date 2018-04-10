@@ -31,7 +31,7 @@ function insertFileToADL(gameDocument) {
                 //'gameSessionID,gameType,gameMap,startDate'
                 const data = `${gameDocument.gameSessionID},${gameDocument.type},${gameDocument.map},${gameDocument.startDate}\n`;
 
-                const csvData = new Buffer(data);
+                const csvData = Buffer.from(data);
                 const options = {
                     appendMode: 'autocreate'
                 };
@@ -44,7 +44,7 @@ function insertFileToADL(gameDocument) {
                         //'gameSessionID,playerID,playerCountry'
                         playerData += `${gameDocument.gameSessionID},${player.playerID},${player.playerCountry}\n`;
                     });
-                    const csvPlayerData = new Buffer(playerData);
+                    const csvPlayerData = Buffer.from(playerData);
                     filesystemClient.fileSystem.concurrentAppend(accountName, `/${datePath}/playerspergamesession.csv`, csvPlayerData, options).then(() => resolve("OK")).catch(err => reject(err));
 
                 }).catch(err => reject(err));
