@@ -32,23 +32,36 @@ function insertFileToADL(gameDocument) {
                 const data = `${gameDocument.gameSessionID},${gameDocument.type},${gameDocument.map},${gameDocument.startDate}\n`;
 
                 const csvData = Buffer.from(data);
-                const options = {
-                    appendMode: 'autocreate'
-                };
+
                 const filesystemClient = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
 
-                filesystemClient.fileSystem.concurrentAppend(accountName, `/${datePath}/gamesessions.csv`, csvData, options).then(() => {
-                    //game session inserted, now we have to insert the players
-                    let playerData = '';
-                    gameDocument.players.forEach(player => {
-                        //'gameSessionID,playerID,playerCountry'
-                        playerData += `${gameDocument.gameSessionID},${player.playerID},${player.playerCountry}\n`;
-                    });
-                    const csvPlayerData = Buffer.from(playerData);
-                    filesystemClient.fileSystem.concurrentAppend(accountName, `/${datePath}/playerspergamesession.csv`, csvPlayerData, options).then(() => resolve("OK")).catch(err => reject(err));
+                //prepare player data
+                let playerData = '';
+                gameDocument.players.forEach(player => {
+                    //'gameSessionID,playerID,playerCountry'
+                    playerData += `${gameDocument.gameSessionID},${player.playerID},${player.playerCountry}\n`;
+                });
+                const csvPlayerData = Buffer.from(playerData);
 
-                }).catch(err => reject(err));
+                const playerDataPromise = appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData);
+                const gameSessionPromise = appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData);
+
+                Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => reject(err));
+
             });
+    });
+}
+
+function appendLineToADLFile(filesystemClient, filename, data) {
+
+    const options = {
+        appendMode: 'autocreate'
+    };
+
+    return new Promise((resolve, reject) => {
+        filesystemClient.fileSystem.concurrentAppend(accountName, filename, data, options)
+            .then(() => resolve("OK"))
+            .catch(err => reject(err));
     });
 }
 
