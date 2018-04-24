@@ -7,14 +7,12 @@ const clienthelpers = require("../client/clienthelpers");
 
 //MODIFY THE BELOW VALUES TO YOUR LIKING
 /////////////////////////////////////////////
-const totalGames = 25;
+const totalGames = 200;
 const minMessagesPerGame = 100;
 const maxMessagesPerGame = 150;
-const minUserID = 1;
-const maxUserID = 100;
-const minPlayersPerGame = 8;
-const maxPlayersPerGame = 16;
-const totalPlayersPerDay = 100;
+const minPlayersPerGame = 16;
+const maxPlayersPerGame = 32;
+const totalPlayersPerDay = 500;
 /////////////////////////////////////////////
 
 
@@ -93,7 +91,10 @@ function registerGame(gameDocument) {
     });
 }
 
-registerGames().then(() => console.log("game registration OK")).then(() => sendDataToEventHub()).catch(err => console.log(err));
+registerGames()
+.then(() => console.log("games registration OK"))
+//.then(() => sendDataToEventHub())
+.catch(err => console.log(err));
 
 function sendDataToEventHub() {
     return new Promise((resolve, reject) => {
