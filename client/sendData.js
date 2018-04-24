@@ -84,7 +84,7 @@ function registerGame(gameDocument) {
             if (err) {
                 reject(err);
             } else if (response) {
-                console.log(`Registered game ${JSON.stringify(gameDocument)}`);
+                console.log(`Registered game ${gameDocument.gameSessionID}`);
                 resolve(`${JSON.stringify(gameDocument)}`);
             }
         });
