@@ -51,6 +51,7 @@ function insertFileToADL(gameDocument, context) {
 
                 appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context)
                     .then(() => appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context))
+                    .then(() => resolve("OK"))
                     .catch(err => { context.log(err); reject(err); });
 
             });
