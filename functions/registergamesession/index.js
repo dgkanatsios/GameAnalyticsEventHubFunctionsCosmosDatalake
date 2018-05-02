@@ -34,6 +34,7 @@ function insertFileToADL(gameDocument, context) {
                 const csvData = Buffer.from(data);
 
                 const filesystemClient = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
+                const filesystemClient2 = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
 
                 //prepare player data
                 let playerData = '';
@@ -50,7 +51,7 @@ function insertFileToADL(gameDocument, context) {
                 //Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => { context.log(err); reject(err); });
 
                 appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context)
-                    .then(() => appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context))
+                    .then(() => appendLineToADLFile(filesystemClient2, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context))
                     .then(() => resolve("OK"))
                     .catch(err => { context.log(err); reject(err); });
 
