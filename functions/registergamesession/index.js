@@ -9,16 +9,16 @@ const utilities = require("../shared/utilities");
 const accountName = config.adlAccountName;
 const constants = require('../shared/constants');
 
-function insertDocumentToCosmos(document) {
+function insertDocumentToCosmos(document, context) {
     return new Promise((resolve, reject) => {
         client.createDocument(collectionUrl, document, (err, created) => {
-            if (err) reject(err)
-            else resolve(created);
+            if (err) { context.log(err); reject(err); }
+            else { resolve(created); }
         });
     });
 }
 
-function insertFileToADL(gameDocument) {
+function insertFileToADL(gameDocument, context) {
     return new Promise((resolve, reject) => {
         MsRest.loginWithServicePrincipalSecret(
             config.clientId,
@@ -43,16 +43,16 @@ function insertFileToADL(gameDocument) {
                 });
                 const csvPlayerData = Buffer.from(playerData);
 
-                const playerDataPromise = appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData);
-                const gameSessionPromise = appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData);
+                const playerDataPromise = appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context);
+                const gameSessionPromise = appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context);
 
-                Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => reject(err));
+                Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => { context.log(err); reject(err); });
 
             });
     });
 }
 
-function appendLineToADLFile(filesystemClient, filename, data) {
+function appendLineToADLFile(filesystemClient, filename, data, context) {
 
     const options = {
         appendMode: 'autocreate',
@@ -62,7 +62,7 @@ function appendLineToADLFile(filesystemClient, filename, data) {
     return new Promise((resolve, reject) => {
         filesystemClient.fileSystem.concurrentAppend(accountName, filename, data, options)
             .then(() => resolve("OK"))
-            .catch(err => reject(err));
+            .catch(err => { context.log(err); reject(err); });
     });
 }
 
@@ -79,9 +79,9 @@ module.exports = function (context, req) {
         players: req.body.players
     };
 
-    insertDocumentToCosmos(gameDocument)
-        .then(() => insertFileToADL(gameDocument))
+    insertDocumentToCosmos(gameDocument, context)
+        .then(() => insertFileToADL(gameDocument, context))
         .then(() => context.done())
-        .catch((err) => utilities.setErrorAndCloseContext(context, err, 500));
+        .catch((err) => { context.log(err); utilities.setErrorAndCloseContext(context, err, 500); });
 
 };
