@@ -7,7 +7,7 @@ const clienthelpers = require("../client/clienthelpers");
 
 //MODIFY THE BELOW VALUES TO YOUR LIKING
 /////////////////////////////////////////////
-const totalGames = 200;
+const totalGames = 2000;
 const minMessagesPerGame = 100;
 const maxMessagesPerGame = 150;
 const minPlayersPerGame = 16;

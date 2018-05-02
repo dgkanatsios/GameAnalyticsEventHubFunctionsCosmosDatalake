@@ -55,7 +55,8 @@ function insertFileToADL(gameDocument) {
 function appendLineToADLFile(filesystemClient, filename, data) {
 
     const options = {
-        appendMode: 'autocreate'
+        appendMode: 'autocreate',
+        syncFlag: 'DATA'
     };
 
     return new Promise((resolve, reject) => {
