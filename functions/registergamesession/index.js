@@ -43,8 +43,9 @@ function insertFileToADL(gameDocument, context) {
                 });
                 const csvPlayerData = Buffer.from(playerData);
 
-                const playerDataPromise = appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context);
-                const gameSessionPromise = Promise.resolve(); //appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context);
+                
+                const gameSessionPromise = appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context);
+                const playerDataPromise = Promise.resolve();//appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context);
 
                 Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => { context.log(err); reject(err); });
 
