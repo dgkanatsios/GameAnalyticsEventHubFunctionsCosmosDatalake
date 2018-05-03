@@ -92,9 +92,9 @@ function registerGame(gameDocument) {
 }
 
 registerGames()
-.then(() => console.log("games registration OK"))
-//.then(() => sendDataToEventHub())
-.catch(err => console.log(err));
+    .then(() => console.log("games registration OK"))
+    //.then(() => sendDataToEventHub())
+    .catch(err => { console.log("games registration NOT OK because of " + err) });
 
 function sendDataToEventHub() {
     return new Promise((resolve, reject) => {
@@ -123,7 +123,7 @@ function sendDataToEventHub() {
 
                         eventDateTime.setMinutes(eventDateTime.getMinutes() + clienthelpers.getRandomInt(0, 14));
                         eventDateTime.setSeconds(eventDateTime.getSeconds() + clienthelpers.getRandomInt(0, 59));
-                        
+
                         const event = {
                             eventID: uuidv4() + "_" + gameSession.gameSessionID, //unique event ID is  //gameSessionID is "GUID_gameSessionID"
                             gameSessionID: gameSession.gameSessionID,
