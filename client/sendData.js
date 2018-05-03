@@ -9,9 +9,9 @@ const clienthelpers = require("../client/clienthelpers");
 /////////////////////////////////////////////
 const totalGames = 500;
 const minMessagesPerGame = 100;
-const maxMessagesPerGame = 150;
-const minPlayersPerGame = 16;
-const maxPlayersPerGame = 32;
+const maxMessagesPerGame = 110;
+const minPlayersPerGame = 8;
+const maxPlayersPerGame = 16;
 const totalPlayersPerDay = 500;
 /////////////////////////////////////////////
 

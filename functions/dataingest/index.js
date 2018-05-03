@@ -76,7 +76,7 @@ module.exports = function (context, eventHubMessages) {
     }
 
     Promise.all(promises).then(() => {
-        helpers.sendDataToDataLakeStore(eventHubMessages)
+        return helpers.sendDataToDataLakeStore(eventHubMessages)
     }).then(() => context.done())
-        .catch((err) => { utilities.setErrorAndCloseContext(context, err, 500) });
+        .catch((err) => { return utilities.setErrorAndCloseContext(context, err, 500) });
 };
