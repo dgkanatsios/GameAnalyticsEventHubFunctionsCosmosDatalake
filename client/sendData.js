@@ -7,7 +7,7 @@ const clienthelpers = require("../client/clienthelpers");
 
 //MODIFY THE BELOW VALUES TO YOUR LIKING
 /////////////////////////////////////////////
-const totalGames = 2000;
+const totalGames = 500;
 const minMessagesPerGame = 100;
 const maxMessagesPerGame = 150;
 const minPlayersPerGame = 16;
@@ -85,6 +85,7 @@ function registerGame(gameDocument) {
             if (err) {
                 //reject(err);
                 console.log(`Not registered game because of ${err}`);
+                resolve();
             } else if (response) {
                 totalGamesRegistered++;
                 console.log(`Registered game ${gameDocument.gameSessionID}`);
@@ -96,7 +97,7 @@ function registerGame(gameDocument) {
 
 registerGames()
     .then(() => console.log("games registration OK"))
-    //.then(() => sendDataToEventHub())
+    .then(() => sendDataToEventHub())
     .catch(err => console.log("games registration NOT OK because of " + err))
     .then(() => console.log("Total games registered: " + totalGamesRegistered));
 
@@ -138,11 +139,12 @@ function sendDataToEventHub() {
                         addSpecial(event); //adds a 'special' property that contains special value(s) for this win
 
                         //console.log(JSON.stringify(event));
-                        totalEvents++;
+
                         //we should *NOT* define a partition key when we send an event to Event Hubs
                         //https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-programming-guide#partition-key
                         tx.send(event);
                     }
+                    totalEvents += winCount;
                     console.log(`Sent ${winCount} events for gameSessionID:${gameSession.gameSessionID}, ${totalEvents} in total so far`);
                 });
                 console.log("Finished");

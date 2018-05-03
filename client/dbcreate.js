@@ -12,7 +12,7 @@ const database = {
 
 const collection = {
     "id": "events",
-    "defaultTtl": 60 * 10, //total TTL seconds
+    "defaultTtl": 60 * 60, //total TTL seconds
     partitionKey: { paths: ["/gameSessionID"], kind: "Hash" }
 };
 
