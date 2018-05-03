@@ -34,7 +34,7 @@ function insertFileToADL(gameDocument, context) {
                 const csvData = Buffer.from(data);
 
                 const filesystemClient = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
-                const filesystemClient2 = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
+                //const filesystemClient2 = new adlsManagement.DataLakeStoreFileSystemClient(credentials);
 
                 //prepare player data
                 let playerData = '';
