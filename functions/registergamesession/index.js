@@ -59,6 +59,7 @@ function insertFileToADL(gameDocument, context) {
     });
 }
 
+
 function appendLineToADLFile(filesystemClient, filename, data, context) {
 
     const options = {
@@ -68,7 +69,7 @@ function appendLineToADLFile(filesystemClient, filename, data, context) {
 
     return new Promise((resolve, reject) => {
         filesystemClient.fileSystem.concurrentAppend(accountName, filename, data, options)
-            .then(() => resolve("OK"))
+            .then(() => {resolve("OK"); })
             .catch(err => { context.log(err); reject(err); });
     });
 }

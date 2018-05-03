@@ -73,6 +73,7 @@ function registerGames() {
     });
 }
 
+let totalGamesRegistered = 0;
 function registerGame(gameDocument) {
     return new Promise((resolve, reject) => {
         request({
@@ -84,6 +85,7 @@ function registerGame(gameDocument) {
             if (err) {
                 reject(err);
             } else if (response) {
+                totalGamesRegistered++;
                 console.log(`Registered game ${gameDocument.gameSessionID}`);
                 resolve(`${JSON.stringify(gameDocument)}`);
             }
@@ -94,7 +96,8 @@ function registerGame(gameDocument) {
 registerGames()
     .then(() => console.log("games registration OK"))
     //.then(() => sendDataToEventHub())
-    .catch(err => { console.log("games registration NOT OK because of " + err) });
+    .catch(err => { console.log("games registration NOT OK because of " + err) })
+    .then(() => { console.log("Total games registered: " + totalGamesRegistered); });
 
 function sendDataToEventHub() {
     return new Promise((resolve, reject) => {
