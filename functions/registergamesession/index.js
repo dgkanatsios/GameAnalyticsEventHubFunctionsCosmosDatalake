@@ -45,15 +45,15 @@ function insertFileToADL(gameDocument, context) {
                 const csvPlayerData = Buffer.from(playerData);
 
 
-                //const gameSessionPromise = appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context);
-                //const playerDataPromise = appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context);
+                const gameSessionPromise = appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context);
+                const playerDataPromise = appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context);
 
-                //Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => { context.log(err); reject(err); });
+                Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => { context.log(err); reject(err); });
 
-                appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context)
-                    .then(() => appendLineToADLFile(filesystemClient2, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context))
-                    .then(() => resolve("OK"))
-                    .catch(err => { context.log(err); reject(err); });
+                // appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context)
+                //     .then(() => appendLineToADLFile(filesystemClient2, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context))
+                //     .then(() => resolve("OK"))
+                //     .catch(err => { context.log(err); reject(err); });
 
             });
     });
@@ -90,5 +90,7 @@ module.exports = function (context, req) {
         .then(() => insertFileToADL(gameDocument, context))
         .then(() => context.done())
         .catch((err) => { context.log(err); utilities.setErrorAndCloseContext(context, err, 500); });
+
+    
 
 };
