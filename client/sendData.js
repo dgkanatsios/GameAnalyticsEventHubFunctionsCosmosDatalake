@@ -83,7 +83,8 @@ function registerGame(gameDocument) {
         }, function (err, response, body) {
             // this callback will only be called when the request succeeded or after maxAttempts or on error
             if (err) {
-                reject(err);
+                //reject(err);
+                console.log(`Not registered game because of ${err}`);
             } else if (response) {
                 totalGamesRegistered++;
                 console.log(`Registered game ${gameDocument.gameSessionID}`);
@@ -96,8 +97,8 @@ function registerGame(gameDocument) {
 registerGames()
     .then(() => console.log("games registration OK"))
     //.then(() => sendDataToEventHub())
-    .catch(err => { console.log("games registration NOT OK because of " + err) })
-    .then(() => { console.log("Total games registered: " + totalGamesRegistered); });
+    .catch(err => console.log("games registration NOT OK because of " + err))
+    .then(() => console.log("Total games registered: " + totalGamesRegistered));
 
 function sendDataToEventHub() {
     return new Promise((resolve, reject) => {

@@ -48,7 +48,7 @@ function insertFileToADL(gameDocument, context) {
                 const gameSessionPromise = appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context);
                 const playerDataPromise = appendLineToADLFile(filesystemClient, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context);
 
-                Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => { context.log(err); reject(err); });
+                Promise.all([gameSessionPromise, playerDataPromise]).then(() => resolve("OK")).catch(err => { context.log(err); return reject(err); });
 
                 // appendLineToADLFile(filesystemClient, `/${datePath}/gamesessions.csv`, csvData, context)
                 //     .then(() => appendLineToADLFile(filesystemClient2, `/${datePath}/playerspergamesession.csv`, csvPlayerData, context))
@@ -69,8 +69,8 @@ function appendLineToADLFile(filesystemClient, filename, data, context) {
 
     return new Promise((resolve, reject) => {
         filesystemClient.fileSystem.concurrentAppend(accountName, filename, data, options)
-            .then(() => {resolve("OK"); })
-            .catch(err => { context.log(err); reject(err); });
+            .then(() => resolve("OK"))
+            .catch(err => { context.log(err); return reject(err); });
     });
 }
 
@@ -90,7 +90,7 @@ module.exports = function (context, req) {
     insertDocumentToCosmos(gameDocument, context)
         .then(() => insertFileToADL(gameDocument, context))
         .then(() => context.done())
-        .catch((err) => { context.log(err); utilities.setErrorAndCloseContext(context, err, 500); });
+        .catch((err) => { context.log(err); return utilities.setErrorAndCloseContext(context, err, 500); });
 
 
 
