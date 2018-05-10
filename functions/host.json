@@ -1,6 +1,6 @@
 {
     "eventHub": {
-        "maxBatchSize": 1000,
+        "maxBatchSize": 100,
         "watchDirectories": ["shared"]
     }
 }
