@@ -69,14 +69,15 @@ module.exports = function (context, eventHubMessages) {
     //context.log(`JavaScript eventhub trigger function called for message array ${JSON.stringify(eventHubMessages)}`);
 
     let promises = [];
+
+    promises.push(helpers.sendDataToDataLakeStore(eventHubMessages));
+
     const aggregatedMessages = aggregateMessages(context, eventHubMessages);
 
     for (let i = 0; i < aggregatedMessages.length; i++) {
         promises.push(createDocument(aggregatedMessages[i]));
     }
 
-    Promise.all(promises).then(() => {
-        return helpers.sendDataToDataLakeStore(eventHubMessages)
-    }).then(() => context.done())
+    Promise.all(promises).then(() => context.done())
         .catch((err) => { return utilities.setErrorAndCloseContext(context, err, 500) });
 };
