@@ -1,5 +1,5 @@
 function setErrorAndCloseContext(context, errorMessage, statusCode) {
-    context.log(`ERROR: ${errorMessage}`);
+    context.log(`ERROR: ${JSON.stringify(errorMessage)}`);
     context.res = {
         status: statusCode,
         body: errorMessage,
