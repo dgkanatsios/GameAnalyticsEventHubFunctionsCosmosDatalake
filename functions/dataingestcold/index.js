@@ -29,7 +29,10 @@ module.exports = function (context, myEventBatch) {
     helpers.sendDataToDataLakeStore(eventHubMessages).then(() => {
         return new Promise((resolve, reject) => {
             blobService.deleteBlobIfExists('eventbatches', context.binding.name, function (err, res) {
-                if (err) reject(err);
+                if (err) {
+                    context.log(err);
+                    reject(err);
+                }
                 else resolve(res);
             });
         });
