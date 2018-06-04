@@ -1,6 +1,5 @@
 "use strict";
 
-const uuidv4 = require('../shared/external').uuid;
 const constants = require('../shared/constants');
 const documentClient = require("../shared/external").documentdb.DocumentClient;
 const config = require("../shared/config");
@@ -75,11 +74,8 @@ module.exports = function (context, eventHubMessages) {
     }
 
     Promise.all(promises).then(() => {
-        const id = uuidv4();
-
         context.bindings.outputBlob = JSON.stringify(eventHubMessages);
-        
-        context.done();
+        return context.done();
     })
     .catch((err) => { return utilities.setErrorAndCloseContext(context, err, 500) });
 };
