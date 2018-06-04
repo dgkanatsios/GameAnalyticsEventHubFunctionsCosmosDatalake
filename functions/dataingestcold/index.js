@@ -20,26 +20,25 @@ const event = {
                 }
 */
 
+const blobService = azurestorage.createBlobService(process.env.WEBSITE_CONTENTAZUREFILECONNECTIONSTRING);
+
+function deleteBlob(context){
+    return new Promise((resolve, reject) => {
+        blobService.deleteBlob('eventbatches', context.bindingData.name, function (err, result, response) {
+            if (err) {
+                context.log(err);
+                reject(err);
+            }
+            else resolve(result);
+        });
+    });
+}
 
 module.exports = function (context, myEventBatch) {
     const eventHubMessages = myEventBatch; //no JSON.Parse needed
 
-    const blobService = azurestorage.createBlobService(process.env.WEBSITE_CONTENTAZUREFILECONNECTIONSTRING);
-
-    helpers.sendDataToDataLakeStore(eventHubMessages).then(() => {
-        return new Promise((resolve, reject) => {
-            blobService.deleteBlobIfExists('eventbatches', context.binding.name, function (err, res) {
-                if (err) {
-                    context.log(err);
-                    reject(err);
-                }
-                else resolve(res);
-            });
-        });
-    }).then(() => {
+    helpers.sendDataToDataLakeStore(eventHubMessages).then(() => deleteBlob(context)).then(() => {
         context.done();
     }).catch((err) => { return utilities.setErrorAndCloseContext(context, err, 500) });
-
-
 
 };
