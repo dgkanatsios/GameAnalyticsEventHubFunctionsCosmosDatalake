@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "azure-arm-datalake-store": "^3.0.0-preview",
+    "azure-storage": "^2.9.0-preview",
     "documentdb": "^1.14.2",
     "ms-rest-azure": "^2.5.5",
     "uuid": "^3.2.1"
