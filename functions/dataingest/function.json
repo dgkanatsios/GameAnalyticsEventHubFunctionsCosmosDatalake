@@ -10,16 +10,9 @@
       "consumerGroup": "$Default"
     },
     {
-      "type": "queue",
-      "name": "outputQueueItem",
-      "queueName": "outqueue",
-      "connection": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-      "direction": "out"
-    },
-    {
       "type": "blob",
       "name": "outputBlob",
-      "path": "outcontainer/{eventID}",
+      "path": "eventBatches/{rand-guid}",
       "connection": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
       "direction": "out"
     }

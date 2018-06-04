@@ -82,9 +82,6 @@ module.exports = function (context, eventHubMessages) {
     Promise.all(promises).then(() => {
         const id = uuidv4();
 
-        context.bindings.outputQueueItem = id;
-        
-        context.bindings.batchEventsID = id;
         context.bindings.outputBlob = JSON.stringify(eventHubMessages);
         
         context.done();
