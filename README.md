@@ -74,7 +74,8 @@ const event = {
                     eventDate: number //time string in UTC format (e.g. 2018-04-03T06:19:25.151Z), denotes time the event took place
                 };          
 ```
-- Event Hub triggers the dataingest Function which receives the messages in batch. Messages are sent to Azure Data Lake Store without any processing (cold path) whereas they are aggregated and sent to Cosmos DB (hot path)
+- Event Hub triggers the *dataingesthot* Function which receives the messages in batch. Messages are aggregated and sent to Cosmos DB (hot path) whereas a copy of them is stored on Blob Storage.
+- Blob Storage triggers the *dataingestcold* Function which receives the batched messages. Messages are finally ingested into Data Lake Store (cold path) without any processing.
 - Game server or client can call *statistics* Function passing the gameSessionID as argument and get game session related data
 - External service can use Data Lake Analytics jobs to query data in Data Lake Store (there is a relevant .usql script on the *various* folder). The output of these jobs can be ingested into other services (via Data Factory) or be used directly from a visualization platform such as PowerBI.
 
@@ -94,9 +95,65 @@ The second file is '/YEAR/MONTH/DAY/playerspergamesession.csv'. On this file, we
 const line = `${gameDocument.gameSessionID},${player.playerID},${player.playerCountry}\n`;
 ```
 
-#### dataingest
+#### dataingesthot
 
-This Function is triggered by Event Hub. It fetches messages in batch, stores an aggregation on Cosmos DB as well as appends message data to Data Lake Store. Filename is '/YEAR/MONTH/DAY/gameevents.csv' and data is appended in CSV format, with each line containing having the following format:
+This Function is triggered by Event Hub. It fetches messages in batch, stores an aggregation on Cosmos DB, like this:
+
+```javascript
+{
+    "gameSessionID": "2018-6-4_d2702447-b14d-42ee-849e-04fb3e5ee387",
+    "type": "type3",
+    "map": "map7",
+    "startDate": "2018-06-04T08:17:19.980Z",
+    "documenttype": "metadata",
+    "players": [
+        {
+            "playerID": "player_8zjM3",
+            "playerCountry": "ESP"
+        },
+        {
+            "playerID": "player_iI1jV",
+            "playerCountry": "UK"
+        },
+        {
+            "playerID": "player_c4s68",
+            "playerCountry": "UK"
+        },
+        {
+            "playerID": "player_Y39XX",
+            "playerCountry": "FR"
+        },
+        {
+            "playerID": "player_moZH9",
+            "playerCountry": "ESP"
+        },
+        {
+            "playerID": "player_f5eq6",
+            "playerCountry": "ESP"
+        },
+        {
+            "playerID": "player_NIXcA",
+            "playerCountry": "FR"
+        },
+        {
+            "playerID": "player_AyMtm",
+            "playerCountry": "FR"
+        }
+    ],
+    "id": "49397a1f-d55c-edf6-f48f-8afce816efbe",
+    "_rid": "oN5oALJEJwAHAAAAAAAAAA==",
+    "_self": "dbs/oN5oAA==/colls/oN5oALJEJwA=/docs/oN5oALJEJwAHAAAAAAAAAA==/",
+    "_etag": "\"0000892b-0000-0000-0000-5b1576bf0000\"",
+    "_attachments": "attachments/",
+    "_ts": 1528133311
+}
+```
+
+Moreover, this Function stores a copy of the batched messages on Blob Storage, on the container cold *eventbatches*.
+
+#### dataingestcold
+
+This Function is triggered by Blob Storage. It fetches the batched messages and appends their data to Data Lake Store. Filename is '/YEAR/MONTH/DAY/gameevents.csv' and data is appended in CSV format, with each line containing having the following format:
 
 ```javascript
 const line = `${message.eventID},${message.gameSessionID},${message.winnerID},${message.loserID},${message.special},${message.eventDate}\n`;
@@ -122,3 +179,6 @@ Yes, we are using the ConcurrentAppend method of the Data Lake Store API, check 
 
 #### I want to read more information regarding Event Hubs.
 Check out the excellent documentation [here](https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-features). For techniques on how to optimize event ingestion and consumption, check [here](https://blogs.msdn.microsoft.com/appserviceteam/2017/09/19/processing-100000-events-per-second-on-azure-functions/). For in order event processing with Event Hubs and Azure Functions check [here](https://medium.com/@jeffhollan/in-order-event-processing-with-azure-functions-bb661eb55428) whereas you can check [here](https://hackernoon.com/reliable-event-processing-in-azure-functions-37054dc2d0fc) for reliable event processing. For a comprehensive article that compares Event Hubs to other Azure messaging services, check [here](https://azure.microsoft.com/en-us/blog/events-data-points-and-messages-choosing-the-right-azure-messaging-service-for-your-data/).
+
+#### Can the blob retrieval from the *dataingestcold* Function be any faster?
+Yes, you could use [Event Grid](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob#trigger) trigger instead of Blob Storage trigger.
