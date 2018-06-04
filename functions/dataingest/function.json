@@ -1,14 +1,28 @@
 {
-    "bindings": [
-      {
-        "type": "eventHubTrigger",
-        "name": "eventHubMessages",
-        "direction": "in",
-        "path": "gameanalyticshub",
-        "connection": "gameanalytics_RootManageSharedAccessKey_EVENTHUB",
-        "cardinality": "many",
-        "consumerGroup": "$Default"
-      }
-    ],
-    "disabled": false
-  }
+  "bindings": [
+    {
+      "type": "eventHubTrigger",
+      "name": "eventHubMessages",
+      "direction": "in",
+      "path": "gameanalyticshub",
+      "connection": "gameanalytics_RootManageSharedAccessKey_EVENTHUB",
+      "cardinality": "many",
+      "consumerGroup": "$Default"
+    },
+    {
+      "type": "queue",
+      "name": "outputQueueItem",
+      "queueName": "outqueue",
+      "connection": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+      "direction": "out"
+    },
+    {
+      "type": "blob",
+      "name": "outputBlob",
+      "path": "outcontainer/{eventID}",
+      "connection": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}

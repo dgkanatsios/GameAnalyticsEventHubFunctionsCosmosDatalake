@@ -2,6 +2,7 @@
 
 const MsRest = require("../shared/external").MsRest;
 const adlsManagement = require("../shared/external").adlsManagement;
+const uuidv4 = require('../shared/external').uuid;
 const constants = require('../shared/constants');
 const documentClient = require("../shared/external").documentdb.DocumentClient;
 const config = require("../shared/config");
@@ -70,7 +71,7 @@ module.exports = function (context, eventHubMessages) {
 
     let promises = [];
 
-    promises.push(helpers.sendDataToDataLakeStore(eventHubMessages));
+    //promises.push(helpers.sendDataToDataLakeStore(eventHubMessages));
 
     const aggregatedMessages = aggregateMessages(context, eventHubMessages);
 
@@ -78,6 +79,15 @@ module.exports = function (context, eventHubMessages) {
         promises.push(createDocument(aggregatedMessages[i]));
     }
 
-    Promise.all(promises).then(() => context.done())
-        .catch((err) => { return utilities.setErrorAndCloseContext(context, err, 500) });
+    Promise.all(promises).then(() => {
+        const id = uuidv4();
+
+        context.bindings.outputQueueItem = id;
+        
+        context.bindings.batchEventsID = id;
+        context.bindings.outputBlob = JSON.stringify(eventHubMessages);
+        
+        context.done();
+    })
+    .catch((err) => { return utilities.setErrorAndCloseContext(context, err, 500) });
 };
