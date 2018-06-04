@@ -1,7 +1,5 @@
 "use strict";
 
-const MsRest = require("../shared/external").MsRest;
-const adlsManagement = require("../shared/external").adlsManagement;
 const uuidv4 = require('../shared/external').uuid;
 const constants = require('../shared/constants');
 const documentClient = require("../shared/external").documentdb.DocumentClient;
@@ -11,7 +9,6 @@ const client = new documentClient(config.endpoint, { "masterKey": config.primary
 const databaseUrl = `dbs/${config.database.id}`;
 const collectionUrl = `${databaseUrl}/colls/${config.collection.id}`;
 const utilities = require("../shared/utilities");
-const helpers = require("./datalakehelpers");
 
 function createDocument(document) {
     return new Promise((resolve, reject) => {
@@ -70,8 +67,6 @@ module.exports = function (context, eventHubMessages) {
     //context.log(`JavaScript eventhub trigger function called for message array ${JSON.stringify(eventHubMessages)}`);
 
     let promises = [];
-
-    //promises.push(helpers.sendDataToDataLakeStore(eventHubMessages));
 
     const aggregatedMessages = aggregateMessages(context, eventHubMessages);
 

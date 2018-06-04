@@ -12,7 +12,7 @@
     {
       "type": "blob",
       "name": "outputBlob",
-      "path": "eventBatches/{rand-guid}",
+      "path": "eventbatches/{rand-guid}.json",
       "connection": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
       "direction": "out"
     }

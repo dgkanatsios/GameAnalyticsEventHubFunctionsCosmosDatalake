@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "myEventBatch",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "eventbatches/{name}",
+      "connection": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"
+    }
+  ],
+  "disabled": false
+}
